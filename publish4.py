@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precision_recall_curve
 import re
 from sklearn.metrics import precision_score, recall_score ,accuracy_score,f1_score
-from flair.embeddings import WordEmbeddings, FlairEmbeddings
+# from flair.embeddings import WordEmbeddings, FlairEmbeddings
 import gensim.downloader as api
 
 
