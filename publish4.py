@@ -21,7 +21,7 @@ from sklearn.metrics import precision_score, recall_score ,accuracy_score,f1_sco
 
 def load_data():
         #Load the dataset
-        data = pd.read_csv('tweetsofmyself1.csv', encoding='cp1252').fillna(' ')
+        data = pd.read_csv('Tweetsofmyself1.csv', encoding='cp1252').fillna(' ')
         # preprocesing
         # rename the labels
         data['check-worthy'] = data['check-worthy'].replace(['yes'],1)
@@ -238,10 +238,7 @@ def main():
         # st.dataframe(df.style.highlight_max(axis=0),width=3000, height=400)
         st.table(df.style.highlight_max(axis=0))
 
-    if st.sidebar.checkbox("Show Testing Dataset", False):
-        st.subheader("Tweets Dataset - After Preprocessing -")
-        # st.dataframe(df.style.highlight_max(axis=0),width=3000, height=400)
-        st.table(test_df.style.highlight_max(axis=0))
+    
 
 if __name__ == '__main__':
     main()
