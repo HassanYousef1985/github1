@@ -14,7 +14,7 @@ from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precisio
 import re
 from sklearn.metrics import precision_score, recall_score ,accuracy_score,f1_score
 # from flair.embeddings import WordEmbeddings, FlairEmbeddings
-import gensim.downloader as api
+# import gensim.downloader as api
 
 
 
