@@ -263,8 +263,9 @@ def main():
                     st.write(prediction)
                 with col2:
                     st.info("% Confidence")
-                    if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
-                    else                          : st.write((y_test[0]*100)[0])
+                    st.write((y_test[0]*100)[0])
+                    # if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
+                    # else                          : st.write((y_test[0]*100)[0])
 
 
     if choice == "Pretrained Word Embeddings":
