@@ -1,83 +1,20 @@
 import pandas as pd
-# from sklearn import model_selection 
 import streamlit as st 
-# from collections import Counter
-# from tensorflow.keras.preprocessing import text, sequence
 import numpy as np
 from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Embedding
 import tensorflow as tf
-# from tensorflow.keras.layers import Dense, Dropout, Activation
-# from tensorflow.keras.layers import Conv1D, GlobalMaxPooling1D, MaxPooling1D
 from sklearn.model_selection import train_test_split
-# from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precision_recall_curve
-# import gensim
-
-from sklearn.metrics import precision_score, recall_score ,accuracy_score,f1_score
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+from sklearn.metrics import precision_score
 from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.layers import Dropout, Dense,Input,Embedding,Flatten, MaxPooling1D, Conv1D
-from tensorflow.keras.models import Sequential,Model
-from sklearn import metrics
-from tensorflow.python.keras.layers.merge import Concatenate
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
-# from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.svm import SVC
-# from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
-# from sklearn.ensemble import RandomForestClassifier
 from tensorflow.keras import layers
-from sklearn.linear_model import LogisticRegression
-# import pickle
-# import string
-# from nltk.corpus import stopwords
-# from nltk.stem import PorterStemmer
-# from nltk.tokenize import TweetTokenizer
-import numpy as np
-# import nltk                                # Python library for NLP
-# from nltk.corpus import twitter_samples    # sample Twitter dataset from NLTK
-# import matplotlib.pyplot as plt            # library for visualization
-# import random 
-import re                                  # library for regular expression operations
-# import string                              # for string operations
+import re                             
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
-# import tkinter as tk
-# from tkinter import *
-# import tkinter.messagebox
-
-from nltk.corpus import stopwords          # module for stop words that come with NLTK
-# from nltk.stem import PorterStemmer        # module for stemming
-# from nltk.tokenize import TweetTokenizer   # module for tokenizing strings                             # pseudo-random number generator
-# from keras.backend import clear_session
-# from gensim.models import Word2Vec
-
-# from keras.utils import np_utils
 from tensorflow import keras
-import string
-# from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-# from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.layers import Embedding, Dense, LSTM
-# from tensorflow.keras.losses import BinaryCrossentropy
-from tensorflow.keras.models import Sequential
-# from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from sklearn.feature_extraction.text import TfidfTransformer
-
-# from sklearn.feature_extraction.text import TfidfVectorizer
-# from word2vec_keras import Word2VecKeras
-# from tensorflow.keras.utils import to_categorical
-import matplotlib.pyplot as plt
-# import os
-# from keras.initializers import Constant
-# from nltk.stem import SnowballStemmer
-# from keras.models import load_model
-# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from tensorflow.keras.models import Sequential, save_model, load_model
-# import tkinter.messagebox
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import RandomizedSearchCV
 
