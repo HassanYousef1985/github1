@@ -104,7 +104,7 @@ def main():
     choice = st.sidebar.selectbox("Choose Classifier",classifier)
    
     # df =load_data()
-    df=load_data1()
+    df=load_data()
     # df = pd.concat([df, df1])
 
     test_size_value = st.sidebar.radio("Test size", (0.1, 0.2, 0.3), 2, key = 'test_size')
