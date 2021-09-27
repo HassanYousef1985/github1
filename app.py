@@ -96,7 +96,7 @@ def split(df, test_size_value):
 
 def main():
 
-    st.title("Predicting check worthy tweet")
+    st.title("Predicting Check Worthy Tweet")
     st.markdown("This app is created to predict if a tweet is check worthy or not in the domain of Corona Virus")
     st.markdown("Please choose your classifier model first then classify your tweet!")
 
@@ -107,17 +107,15 @@ def main():
     df=load_data()
     # df = pd.concat([df, df1])
 
-    test_size_value = st.sidebar.radio("Test size", (0.1, 0.2, 0.3), 2, key = 'test_size')
-    X_train, X_test, y_train, y_test = split(df,test_size_value)
+    test_size_value = st.sidebar.radio("Test size: (Default is 30%)", (0.1, 0.2, 0.3), 2, key = 'test_size')
+    
     class_names = ['worthy', 'not worthy']
 
 
-    
-
-    
+  
 
     if choice == "Logistic Regression":
-
+        X_train, X_test, y_train, y_test = split(df,test_size_value)
         vectorizer = CountVectorizer()
         vectorizer.fit(X_train)
 
@@ -129,8 +127,8 @@ def main():
         lr_clf.fit(X_train, y_train)
 
         y_pred = lr_clf.predict(X_test)
-        st.write("Training Accuracy: {:.4f}".format(lr_clf.score(X_train, y_train)))
-        st.write("Testing Accuracy: {:.4f}".format(lr_clf.score(X_test, y_test)))
+        st.write("Training Accuracy: {:.2f}".format(lr_clf.score(X_train, y_train)))
+        st.write("Testing Accuracy: {:.2f}".format(lr_clf.score(X_test, y_test)))
         # st.write("Precision: {:.4f}".format(precision_score(y_test, y_pred, labels = class_names)))
         # st.write("Recall: {:.4f}".format(recall_score(y_test, y_pred, labels = class_names)))
 
@@ -152,39 +150,43 @@ def main():
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
             if submitted:
-                # remove hyberlinks
-                test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
-                # remove the word <link>
-                test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
-                # remove emogis
-                test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
-                # more cleaning (usernames-hashtags)
-                test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                # # convert to lowercase
-                test_tweet = test_tweet.lower() 
+                if test_tweet =="" : st.error("Tweet should be not empty or less than 5 words!")
+                else:
+                    if len(test_tweet.split()) < 5 : st.error("Tweet should be not empty or less than 5 words!")
+                    else:
+                        # remove hyberlinks
+                        test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
+                        # remove the word <link>
+                        test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
+                        # remove emogis
+                        test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
+                        # more cleaning (usernames-hashtags)
+                        test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                        # # convert to lowercase
+                        test_tweet = test_tweet.lower() 
 
+                        test_tweet_df = [test_tweet]
+                        X_test_sample  = vectorizer.transform(test_tweet_df)
+                        y_test = lr_clf.predict(X_test_sample)              
 
-                test_tweet_df = [test_tweet]
-                X_test_sample  = vectorizer.transform(test_tweet_df)
-                y_test = lr_clf.predict(X_test_sample)              
-
-                prediction = 'not worthy' if y_test[0] == 0 else 'worthy'
-                col1,col2 = st.columns([2,2])
-                with col1:    
-                    st.info("Prediction")
-                    st.write(prediction)
-                with col2:
-                    st.info("% Confidence")
-                    if prediction == 'not worthy' : st.write(lr_clf.predict_proba(X_test_sample)[0,0]*100)
-                    else                          : st.write(lr_clf.predict_proba(X_test_sample)[0,1]*100)   
+                        prediction = 'Not check-worthy' if y_test[0] == 0 else 'Check-worthy'
+                        col1,col2 = st.columns([2,2])
+                        with col1:    
+                            st.info("Prediction")
+                            st.write(prediction)
+                        with col2:
+                            st.info("% Confidence")
+                            if prediction == 'Not check-worthy' : st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
+                            else                                : st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
 
   
 
     if choice == "Word Embeddings":
-
+        X_train, X_test, y_train, y_test = split(df,test_size_value)
         tokenizer = Tokenizer(num_words=5000)
         tokenizer.fit_on_texts(X_train)
+
 
         X_train = tokenizer.texts_to_sequences(X_train)
         X_test = tokenizer.texts_to_sequences(X_test)
@@ -215,13 +217,13 @@ def main():
                     verbose=False,
                     validation_data=(X_test, y_test),
                     batch_size=10)
-        st.subheader("Classifier Metrics - Sequential model with Word Embeddings:")
+        st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
         y_pred = word_embeddings_clf.predict(X_test)
 
         loss, accuracy = word_embeddings_clf.evaluate(X_train, y_train, verbose=False)
-        st.write("Training Accuracy: {:.4f}".format(accuracy))
+        st.write("Training Accuracy: {:.2f}".format(accuracy))
         loss, accuracy = word_embeddings_clf.evaluate(X_test, y_test, verbose=False)
-        st.write("Testing Accuracy:  {:.4f}".format(accuracy))
+        st.write("Testing Accuracy:  {:.2f}".format(accuracy))
         # st.write("Precision: {:.4f}".format(precision_score(y_test, y_pred, labels = class_names)))
 
 
@@ -229,47 +231,53 @@ def main():
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
             if submitted:
-                # remove hyberlinks
-                test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
-                # remove the word <link>
-                test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
-                # remove emogis
-                test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
-                # more cleaning (usernames-hashtags)
-                test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                # # convert to lowercase
-                test_tweet = test_tweet.lower() 
+                if test_tweet =="" : st.error("Tweet should be not empty or less than 5 words!")
+                else:
+                    if len(test_tweet.split()) < 5 : st.error("Tweet should be not empty or less than 5 words!")
+                    else:
+                        # remove hyberlinks
+                        test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
+                        # remove the word <link>
+                        test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
+                        # remove emogis
+                        test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
+                        # more cleaning (usernames-hashtags)
+                        test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                        # # convert to lowercase
+                        test_tweet = test_tweet.lower() 
 
 
-                test_tweet_df = [test_tweet]
-                X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
-                X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                # sample_to_predict = np.array(X_test_sample)
+                        test_tweet_df = [test_tweet]
+                        X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
+                        X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
+                        # sample_to_predict = np.array(X_test_sample)
 
-                y_test = word_embeddings_clf.predict(X_test_sample)                 
-                # y_test1 = seq_clf.predict(sample_to_predict)                 
+                        y_test = word_embeddings_clf.predict(X_test_sample)                 
+                        # y_test1 = seq_clf.predict(sample_to_predict)                 
 
-                # st.write(y_test)
-                # st.write(y_test1)
+                        # st.write(y_test)
+                        # st.write(y_test1)
 
-                # st.write(y_test[0]*100)
+                        # st.write(y_test[0]*100)
 
 
-                prediction = 'not worthy' if y_test[0]*100 < 50 else 'worthy'
-                col1,col2 = st.columns([2,2])
-                with col1:    
-                    st.info("Prediction")
-                    st.write(prediction)
-                with col2:
-                    st.info("% Confidence")
-                    st.write((y_test[0]*100)[0])
-                    # if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
-                    # else                          : st.write((y_test[0]*100)[0])
+                        prediction = 'Not check-worthy' if y_test[0]*100 < 50 else 'Check-worthy'
+                        col1,col2 = st.columns([2,2])
+                        with col1:    
+                            st.info("Prediction")
+                            st.write(prediction)
+                        with col2:
+                            st.info("% Confidence")
+                            st.write("≈ {:.0f}".format(    (y_test[0]*100)[0]   ) )
+                            
+                            # st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
+                            # if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
+                            # else                          : st.write((y_test[0]*100)[0])
 
 
     if choice == "Pretrained Word Embeddings":
-
+        X_train, X_test, y_train, y_test = split(df,test_size_value)
         tokenizer = Tokenizer(num_words=5000)
         tokenizer.fit_on_texts(X_train)
 
@@ -311,63 +319,62 @@ def main():
         y_pred = pretrained_embeddings_clf.predict(X_test)
 
         loss, accuracy = pretrained_embeddings_clf.evaluate(X_train, y_train, verbose=False)
-        st.write("Training Accuracy: {:.4f}".format(accuracy))
+        st.write("Training Accuracy: {:.2f}".format(accuracy))
         loss, accuracy = pretrained_embeddings_clf.evaluate(X_test, y_test, verbose=False)
-        st.write("Testing Accuracy:  {:.4f}".format(accuracy))
-
-
-
-
-
-       
+        st.write("Testing Accuracy:  {:.2f}".format(accuracy))      
 
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
             if submitted:
-                # remove hyberlinks
-                test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
-                # remove the word <link>
-                test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
-                # remove emogis
-                test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
-                # more cleaning (usernames-hashtags)
-                test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                # # convert to lowercase
-                test_tweet = test_tweet.lower() 
+                if test_tweet =="" : st.error("Tweet should be not empty or less than 5 words!")
+                else:
+                    if len(test_tweet.split()) < 5 : st.error("Tweet should be not empty or less than 5 words!")
+                    else:
+                        # remove hyberlinks
+                        test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
+                        # remove the word <link>
+                        test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
+                        # remove emogis
+                        test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
+                        # more cleaning (usernames-hashtags)
+                        test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                        # # convert to lowercase
+                        test_tweet = test_tweet.lower() 
 
 
-                test_tweet_df = [test_tweet]
-                X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
-                X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                # sample_to_predict = np.array(X_test_sample)
+                        test_tweet_df = [test_tweet]
+                        X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
+                        X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
+                        # sample_to_predict = np.array(X_test_sample)
 
-                y_test = pretrained_embeddings_clf.predict(X_test_sample)                 
-                # y_test1 = seq_clf.predict(sample_to_predict)                 
+                        y_test = pretrained_embeddings_clf.predict(X_test_sample)                 
+                        # y_test1 = seq_clf.predict(sample_to_predict)                 
 
-                # st.write(y_test)
-                # st.write(y_test1)
+                        # st.write(y_test)
+                        # st.write(y_test1)
 
-                # st.write(y_test[0]*100)
+                        # st.write(y_test[0]*100)
 
 
-                prediction = 'not worthy' if y_test[0]*100 < 50 else 'worthy'
-                col1,col2 = st.columns([2,2])
-                with col1:    
-                    st.info("Prediction")
-                    st.write(prediction)
-                with col2:
-                    st.info("% Confidence")
-                    if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
-                    else                          : st.write((y_test[0]*100)[0])
-                    
+                        prediction = 'Not check-worthy' if y_test[0]*100 < 50 else 'Check-worthy'
+                        col1,col2 = st.columns([2,2])
+                        with col1:    
+                            st.info("Prediction")
+                            st.write(prediction)
+                        with col2:
+                            st.info("% Confidence")
+                            st.write("≈ {:.0f}".format(    (y_test[0]*100)[0]   ) )
+                            # if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
+                            # else                          : st.write((y_test[0]*100)[0])
+                            
 
    
 
 
     if choice == "CNN - Type1":
-    
+            X_train, X_test, y_train, y_test = split(df,test_size_value)
             # Tokenize and transform to integer index
             tokenizer = Tokenizer()
             tokenizer.fit_on_texts(X_train)
@@ -413,17 +420,21 @@ def main():
 
             loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
             # st.write("Training Accuracy: {:.4f}".format(accuracy))
-            st.write("Training Accuracy: {:.4f}".format(accuracy))
+            st.write("Training Accuracy: {:.2f}".format(accuracy))
 
             loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
 
-            st.write("Testing Accuracy:  {:.4f}".format(accuracy))
+            st.write("Testing Accuracy:  {:.2f}".format(accuracy))
         
            
             with st.form("my_form"):
-                        test_tweet = st.text_area("Enter Your Own Tweet:")        
-                        submitted = st.form_submit_button("Classify")     
-                        if submitted:
+                test_tweet = st.text_area("Enter Your Own Tweet:")        
+                submitted = st.form_submit_button("Classify")     
+                if submitted:
+                    if test_tweet =="" : st.error("Tweet should be not empty or less than 5 words!")
+                    else:
+                        if len(test_tweet.split()) < 5 : st.error("Tweet should be not empty or less than 5 words!")
+                        else:
                             # remove hyberlinks
                             test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
                             # remove the word <link>
@@ -441,20 +452,23 @@ def main():
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
-                            loaded_model = tf.keras.models.load_model('cnn_clf')
-                            y_test=loaded_model.predict(X_test_sample)
+                            # loaded_model = tf.keras.models.load_model('cnn_clf')
+                            y_test=cnn_clf.predict(X_test_sample)
                             # y_test = cnn_clf.predict(X_test1)
-                 
+                    
 
-                            prediction = 'not worthy' if y_test[0] <0.5 else 'worthy'
+                            prediction = 'Not check-worthy' if y_test[0] <0.5 else 'Check-worthy'
                             col1,col2 = st.columns([2,2])
                             with col1:    
                                 st.info("Prediction")
                                 st.write(prediction)
                             with col2:
                                 st.info("% Confidence")
-                                if prediction == 'not worthy' : st.write(y_test[0,0]*100)
-                                else                          : st.write(y_test[0,0]*100)   
+                                st.write("≈ {:.0f}".format(    (y_test[0]*100)[0]   ) )
+                                # if prediction == 'not worthy' : st.write(y_test[0,0]*100)
+                                # else                          : st.write(y_test[0,0]*100)   
+
+
 
 
     # if choice == "CNN - Type1 (optimization)":
