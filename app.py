@@ -456,57 +456,57 @@ def main():
                                 else                          : st.write(y_test[0,0]*100)   
 
 
-    if choice == "CNN - Type1 (optimization)":
+    # if choice == "CNN - Type1 (optimization)":
 
-        param_grid = dict(num_filters=[32, 64, 128],
-                  kernel_size=[3, 5, 7],
-                  vocab_size=[5000], 
-                  embedding_dim=[50],
-                  maxlen=[100])
-        # Main settings
-        epochs = 10
-        embedding_dim = 50
-        maxlen = 280
-        output_file = 'output.txt'  
-        X = df['tweet']
-        y = df['check-worthy']
-        # Train-test split
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size_value, random_state = 1000)
+    #     param_grid = dict(num_filters=[32, 64, 128],
+    #               kernel_size=[3, 5, 7],
+    #               vocab_size=[5000], 
+    #               embedding_dim=[50],
+    #               maxlen=[100])
+    #     # Main settings
+    #     epochs = 10
+    #     embedding_dim = 50
+    #     maxlen = 280
+    #     output_file = 'output.txt'  
+    #     X = df['tweet']
+    #     y = df['check-worthy']
+    #     # Train-test split
+    #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size_value, random_state = 1000)
         
-        # Tokenize words
-        tokenizer = Tokenizer(num_words=5000)
-        tokenizer.fit_on_texts(X_train)
-        X_train = tokenizer.texts_to_sequences(X_train)
-        X_test = tokenizer.texts_to_sequences(X_test)
+    #     # Tokenize words
+    #     tokenizer = Tokenizer(num_words=5000)
+    #     tokenizer.fit_on_texts(X_train)
+    #     X_train = tokenizer.texts_to_sequences(X_train)
+    #     X_test = tokenizer.texts_to_sequences(X_test)
 
-        # Adding 1 because of reserved 0 index
-        vocab_size = len(tokenizer.word_index) + 1
+    #     # Adding 1 because of reserved 0 index
+    #     vocab_size = len(tokenizer.word_index) + 1
 
-        # Pad sequences with zeros
-        X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
-        X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
+    #     # Pad sequences with zeros
+    #     X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
+    #     X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
 
-        # Parameter grid for grid search
-        param_grid = dict(num_filters=[32, 64, 128],
-                        kernel_size=[3, 5, 7],
-                        vocab_size=[vocab_size],
-                        embedding_dim=[embedding_dim],
-                        maxlen=[maxlen])
-        model = KerasClassifier(build_fn=create_model,
-                                epochs=epochs, batch_size=10,
-                                verbose=False)
-        grid = RandomizedSearchCV(estimator=model, param_distributions=param_grid,
-                                cv=4, verbose=1, n_iter=5)
-        grid_result = grid.fit(X_train, y_train)
-        # Evaluate testing set
-        st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1) - Hyperparameters Optimization:")
-
-
-        st.write("Training Accuracy: {:.4f}".format(grid.score(X_train, y_train)))
+    #     # Parameter grid for grid search
+    #     param_grid = dict(num_filters=[32, 64, 128],
+    #                     kernel_size=[3, 5, 7],
+    #                     vocab_size=[vocab_size],
+    #                     embedding_dim=[embedding_dim],
+    #                     maxlen=[maxlen])
+    #     model = KerasClassifier(build_fn=create_model,
+    #                             epochs=epochs, batch_size=10,
+    #                             verbose=False)
+    #     grid = RandomizedSearchCV(estimator=model, param_distributions=param_grid,
+    #                             cv=4, verbose=1, n_iter=5)
+    #     grid_result = grid.fit(X_train, y_train)
+    #     # Evaluate testing set
+    #     st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1) - Hyperparameters Optimization:")
 
 
-        test_accuracy = grid.score(X_test, y_test)
-        st.write ("Testing Accuracy: {:.4f}".format(test_accuracy))
+    #     st.write("Training Accuracy: {:.4f}".format(grid.score(X_train, y_train)))
+
+
+    #     test_accuracy = grid.score(X_test, y_test)
+    #     st.write ("Testing Accuracy: {:.4f}".format(test_accuracy))
         
        
 
