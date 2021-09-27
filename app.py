@@ -15,8 +15,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from keras.wrappers.scikit_learn import KerasClassifier
-from sklearn.model_selection import RandomizedSearchCV
+# from keras.wrappers.scikit_learn import KerasClassifier
+# from sklearn.model_selection import RandomizedSearchCV
 
 def create_model(num_filters, kernel_size, vocab_size, embedding_dim, maxlen):
     model = Sequential()
