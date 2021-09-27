@@ -45,7 +45,7 @@ import re                                  # library for regular expression oper
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
 # import tkinter as tk
-from tkinter import *
+# from tkinter import *
 # import tkinter.messagebox
 
 from nltk.corpus import stopwords          # module for stop words that come with NLTK
