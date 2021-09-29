@@ -403,7 +403,7 @@ def main():
     if choice == "CNN - Type1":
             # X_train, X_test, y_train, y_test = split(df,test_size_value)
             # # Tokenize and transform to integer index
-            # tokenizer = Tokenizer()
+            tokenizer = Tokenizer()
             # tokenizer.fit_on_texts(X_train)
 
             # X_train = tokenizer.texts_to_sequences(X_train)
