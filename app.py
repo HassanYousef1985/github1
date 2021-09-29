@@ -93,12 +93,12 @@ def split(df, test_size_value):
     return X_train, X_test, y_train, y_test
 
 
-@st.cache(allow_output_mutation=True)
-def load_my_model():
-    model = load_model("my_model.h5")
-    # model._make_predict_function()
-    # model.summary()  # included to make it visible when model is reloaded
-    return model
+# @st.cache(allow_output_mutation=True)
+# def load_my_model():
+#     model = load_model("my_model.h5")
+#     # model._make_predict_function()
+#     # model.summary()  # included to make it visible when model is reloaded
+#     return model
 
 def main():
 
@@ -471,7 +471,9 @@ def main():
                             test_tweet_df = [test_tweet]
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            model = load_my_model()
+                            model = load_model("my_model.h5")
+
+                            # model = load_my_model()
                             # model.make_predict_function()
 
                             # cnn_clf.make_predict_function()
