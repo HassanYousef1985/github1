@@ -471,7 +471,7 @@ def main():
                             test_tweet_df = [test_tweet]
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            model = load_model("my_model.h5")
+                            model = load_model()
 
                             # model = load_my_model()
                             # model.make_predict_function()
