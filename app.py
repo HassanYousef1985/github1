@@ -15,7 +15,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from keras.models import load_model
 from keras.models import model_from_json
 
 
