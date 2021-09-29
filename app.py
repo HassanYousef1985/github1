@@ -95,7 +95,7 @@ def split(df, test_size_value):
 
 @st.cache(allow_output_mutation=True)
 def load_my_model():
-    model = load_model("model.hdf5")
+    model = load_model("my_model.h5")
     # model._make_predict_function()
     # model.summary()  # included to make it visible when model is reloaded
     return model
@@ -435,7 +435,7 @@ def main():
             #     json_file.write(model_json)
             # cnn_clf.save_weights("model.h5")
 
-            # cnn_clf.save('model.hdf5')
+            # cnn_clf.save('my_model.h5')
             # st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
         
             # y_pred = cnn_clf.predict(X_test)
