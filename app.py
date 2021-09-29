@@ -95,15 +95,15 @@ def split(df, test_size_value):
     return X_train, X_test, y_train, y_test
 
 
-@st.cache(allow_output_mutation=True)
-def load_model():
-    model_weights = "model.h5"
-    model_json = "model.json"
-    with open(model_json) as json_file:
-        loaded_model = model_from_json(json_file.read())
-    loaded_model.load_weights(model_weights)
-    loaded_model.summary()  # included to make it visible when model is reloaded
-    return loaded_model
+# @st.cache(allow_output_mutation=True)
+# def load_model(): 
+#     model_weights = "model.h5"
+#     model_json = "model.json"
+#     with open(model_json) as json_file:
+#         loaded_model = model_from_json(json_file.read())
+#     loaded_model.load_weights(model_weights)
+#     loaded_model.summary()  # included to make it visible when model is reloaded
+#     return loaded_model
 
 
 def main():
@@ -490,10 +490,16 @@ def main():
 
 
 
+                            # Read and load the JSON file
+                            json_file = open('<model.json', 'r')
+                            loaded_model_json = json_file.read()
+                            json_file.close()
 
+                            # Use Keras's built in model_from_json function to convert the JSON file to a model
+                            loaded_model = model_from_json(loaded_model_json)
 
-                            model = load_model()
-                            y_test = model.predict(X_test_sample)
+                            # model = load_model()
+                            y_test = loaded_model.predict(X_test_sample)
 
                             prediction = 'Not check-worthy' if y_test[0] <0.5 else 'Check-worthy'
                             col1,col2 = st.columns([2,2])
