@@ -16,6 +16,7 @@ from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import model_from_json
+from tensorflow.keras.models import load_model
 
 
 # from keras.wrappers.scikit_learn import KerasClassifier
@@ -441,7 +442,7 @@ def main():
             #     json_file.write(model_json)
             # cnn_clf.save_weights("model.h5")
 
-            # cnn_clf.save('my_model.hdf5')
+            # cnn_clf.save('my_model.h5')
             st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
         
             # y_pred = cnn_clf.predict(X_test)
@@ -477,7 +478,7 @@ def main():
                             test_tweet_df = [test_tweet]
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            # model = load_model('my_model.h5')
+                            model = load_model('my_model.h5')
                             # cnn_clf.make_predict_function()
 
                             # model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
@@ -485,21 +486,21 @@ def main():
                             # loaded_model=tf.saved_model.load("my_model")
                             # y_test=loaded_model.predict(X_test_sample)
                     
-                            # y_test = cnn_clf.predict(X_test_sample)
+                            y_test = model.predict(X_test_sample)
 
 
 
 
                             # Read and load the JSON file
-                            json_file = open('model.json', 'r')
-                            loaded_model_json = json_file.read()
-                            json_file.close()
+                            # json_file = open('model.json', 'r')
+                            # loaded_model_json = json_file.read()
+                            # json_file.close()
 
-                            # Use Keras's built in model_from_json function to convert the JSON file to a model
-                            loaded_model = model_from_json(loaded_model_json)
+                            # # Use Keras's built in model_from_json function to convert the JSON file to a model
+                            # loaded_model = model_from_json(loaded_model_json)
 
                             # model = load_model()
-                            y_test = loaded_model.predict(X_test_sample)
+                            # y_test = loaded_model.predict(X_test_sample)
 
                             prediction = 'Not check-worthy' if y_test[0] <0.5 else 'Check-worthy'
                             col1,col2 = st.columns([2,2])
