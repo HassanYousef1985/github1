@@ -18,8 +18,6 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
 
 
-# from keras.wrappers.scikit_learn import KerasClassifier
-# from sklearn.model_selection import RandomizedSearchCV
 
 def create_model(num_filters, kernel_size, vocab_size, embedding_dim, maxlen):
     model = Sequential()
@@ -95,16 +93,12 @@ def split(df, test_size_value):
     return X_train, X_test, y_train, y_test
 
 
-# @st.cache(allow_output_mutation=True)
-# def load_model(): 
-#     model_weights = "model.h5"
-#     model_json = "model.json"
-#     with open(model_json) as json_file:
-#         loaded_model = model_from_json(json_file.read())
-#     loaded_model.load_weights(model_weights)
-#     loaded_model.summary()  # included to make it visible when model is reloaded
-#     return loaded_model
-
+@st.cache(allow_output_mutation=True)
+def load_my_model():
+    model = load_model("model.hdf5")
+    # model._make_predict_function()
+    # model.summary()  # included to make it visible when model is reloaded
+    return model
 
 def main():
 
@@ -477,7 +471,7 @@ def main():
                             test_tweet_df = [test_tweet]
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            model = load_model('model.hdf5')
+                            model = load_my_model()
                             # model.make_predict_function()
 
                             # cnn_clf.make_predict_function()
