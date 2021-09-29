@@ -17,6 +17,7 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
 
+model = load_model('model')
 
 
 def create_model(num_filters, kernel_size, vocab_size, embedding_dim, maxlen):
@@ -100,7 +101,6 @@ def split(df, test_size_value):
 #     # model.summary()  # included to make it visible when model is reloaded
 #     return model
 
-model = load_model('model')
 
 def main():
 
