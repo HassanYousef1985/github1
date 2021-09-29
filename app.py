@@ -96,7 +96,7 @@ def split(df, test_size_value):
 
 
 @st.cache(allow_output_mutation=True)
-def load_my_model():
+def load_model():
     model_weights = "model.h5"
     model_json = "model.json"
     with open(model_json) as json_file:
@@ -492,7 +492,7 @@ def main():
 
 
 
-                            model = load_my_model()
+                            model = load_model()
                             y_test = model.predict(X_test_sample)
 
                             prediction = 'Not check-worthy' if y_test[0] <0.5 else 'Check-worthy'
