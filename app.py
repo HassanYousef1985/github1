@@ -100,6 +100,8 @@ def split(df, test_size_value):
 #     # model.summary()  # included to make it visible when model is reloaded
 #     return model
 
+model = load_model('model')
+
 def main():
 
     st.title("Predicting Check Worthy Tweet")
@@ -471,7 +473,7 @@ def main():
                             test_tweet_df = [test_tweet]
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            model = load_model('model')
+                            # model = load_model('model')
 
                             # model = load_my_model()
                             # model.make_predict_function()
