@@ -15,6 +15,10 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from keras.models import load_model
+from keras import backend as K
+
+
 # from keras.wrappers.scikit_learn import KerasClassifier
 # from sklearn.model_selection import RandomizedSearchCV
 
@@ -90,7 +94,15 @@ def split(df, test_size_value):
     y = df['check-worthy']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size_value, random_state = 0)
     return X_train, X_test, y_train, y_test
-    
+
+
+@st.cache(allow_output_mutation=True)
+def load_model():
+    model = load_model("my_model.h5")
+    model.make_predict_function()
+    model.summary()  # included to make it visible when model is reloaded
+    session = K.get_session()
+    return model, session
 
 
 
@@ -150,9 +162,9 @@ def main():
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
             if submitted:
-                if test_tweet =="" : st.error("Tweet should be not empty or less than 5 words!")
+                if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
                 else:
-                    if len(test_tweet.split()) < 5 : st.error("Tweet should be not empty or less than 5 words!")
+                    if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                     else:
                         # remove hyberlinks
                         test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
@@ -181,6 +193,21 @@ def main():
                             else                                : st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
 
   
+
+
+
+                           # @st.cache
+                                # def __calculate_score(y_pred_class, y_pred_prob):
+                                # if y_pred_class == 0:
+                                #     MAX = 0.5
+                                #     scaled_percentage = (y_pred_prob * MAX) / 100
+                                #     return MAX - scaled_percentage
+                                # else:
+                                #     MAX = 1
+                                #     scaled_percentage = (y_pred_prob * MAX) / 100
+                                #     return scaled_percentage   
+
+
 
     if choice == "Word Embeddings":
         X_train, X_test, y_train, y_test = split(df,test_size_value)
@@ -231,9 +258,9 @@ def main():
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
             if submitted:
-                if test_tweet =="" : st.error("Tweet should be not empty or less than 5 words!")
+                if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
                 else:
-                    if len(test_tweet.split()) < 5 : st.error("Tweet should be not empty or less than 5 words!")
+                    if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                     else:
                         # remove hyberlinks
                         test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
@@ -327,9 +354,9 @@ def main():
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
             if submitted:
-                if test_tweet =="" : st.error("Tweet should be not empty or less than 5 words!")
+                if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
                 else:
-                    if len(test_tweet.split()) < 5 : st.error("Tweet should be not empty or less than 5 words!")
+                    if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                     else:
                         # remove hyberlinks
                         test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
@@ -374,66 +401,68 @@ def main():
 
 
     if choice == "CNN - Type1":
-            X_train, X_test, y_train, y_test = split(df,test_size_value)
-            # Tokenize and transform to integer index
-            tokenizer = Tokenizer()
-            tokenizer.fit_on_texts(X_train)
+            # X_train, X_test, y_train, y_test = split(df,test_size_value)
+            # # Tokenize and transform to integer index
+            # tokenizer = Tokenizer()
+            # tokenizer.fit_on_texts(X_train)
 
-            X_train = tokenizer.texts_to_sequences(X_train)
-            X_test = tokenizer.texts_to_sequences(X_test)
+            # X_train = tokenizer.texts_to_sequences(X_train)
+            # X_test = tokenizer.texts_to_sequences(X_test)
 
-            vocab_size = len(tokenizer.word_index) + 1  # Adding 1 because of reserved 0 index
-            maxlen = max(len(x) for x in X_train) # longest text in train set
+            # vocab_size = len(tokenizer.word_index) + 1  # Adding 1 because of reserved 0 index
+            # maxlen = max(len(x) for x in X_train) # longest text in train set
 
-            # Add pading to ensure all vectors have same dimensionality
-            X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
-            X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
-            # Define CNN architecture
+            # # Add pading to ensure all vectors have same dimensionality
+            # X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
+            # X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
+            # # Define CNN architecture
 
-            embedding_dim = 100
+            # embedding_dim = 100
 
-            cnn_clf = Sequential()
-            cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
-            cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
-            cnn_clf.add(layers.GlobalMaxPooling1D())
-            cnn_clf.add(layers.Dense(10, activation='relu'))
-            cnn_clf.add(layers.Dense(1, activation='sigmoid'))
-            cnn_clf.compile(optimizer='adam',
-                        loss='binary_crossentropy',
-                        metrics=['accuracy'])
-            print(cnn_clf.summary())
+            # cnn_clf = Sequential()
+            # cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
+            # cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
+            # cnn_clf.add(layers.GlobalMaxPooling1D())
+            # cnn_clf.add(layers.Dense(10, activation='relu'))
+            # cnn_clf.add(layers.Dense(1, activation='sigmoid'))
+            # cnn_clf.compile(optimizer='adam',
+            #             loss='binary_crossentropy',
+            #             metrics=['accuracy'])
+            # print(cnn_clf.summary())
 
-            # Fit model
-            history = cnn_clf.fit(X_train, y_train,
-                                epochs=5,
-                                verbose=True,
-                                validation_data=(X_test, y_test),
-                                batch_size=10)
+            # # Fit model
+            # history = cnn_clf.fit(X_train, y_train,
+            #                     epochs=5,
+            #                     verbose=True,
+            #                     validation_data=(X_test, y_test),
+            #                     batch_size=10)
 
            
+            # cnn_clf.save('my_model.hdf5')
+            # # tf.saved_model.save(cnn_clf,'my_h5_model.h5')
+         
 
-            # cnn_clf.save('cnn_clf')
-            st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
+            # st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
         
-            y_pred = cnn_clf.predict(X_test)
+            # y_pred = cnn_clf.predict(X_test)
 
 
-            loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
-            # st.write("Training Accuracy: {:.4f}".format(accuracy))
-            st.write("Training Accuracy: {:.2f}".format(accuracy))
+            # loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
+            # # st.write("Training Accuracy: {:.4f}".format(accuracy))
+            # st.write("Training Accuracy: {:.2f}".format(accuracy))
 
-            loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
+            # loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
 
-            st.write("Testing Accuracy:  {:.2f}".format(accuracy))
+            # st.write("Testing Accuracy:  {:.2f}".format(accuracy))
         
            
             with st.form("my_form"):
                 test_tweet = st.text_area("Enter Your Own Tweet:")        
                 submitted = st.form_submit_button("Classify")     
                 if submitted:
-                    if test_tweet =="" : st.error("Tweet should be not empty or less than 5 words!")
+                    if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
                     else:
-                        if len(test_tweet.split()) < 5 : st.error("Tweet should be not empty or less than 5 words!")
+                        if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                         else:
                             # remove hyberlinks
                             test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
@@ -451,10 +480,19 @@ def main():
                             test_tweet_df = [test_tweet]
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
+                            # loaded_model = tf.saved_model.load('my_h5_model.h5')
+                            # y_test=loaded_model.predict(X_test_sample)
+                            # model = load_model('my_model.h5')
+                            model, session = load_model()
+                            if X_test_sample:
+                                K.set_session(session)
+                                y_test = model.predict(X_test_sample)
+                            # cnn_clf.make_predict_function()
 
-                            # loaded_model = tf.keras.models.load_model('cnn_clf')
-                            y_test=cnn_clf.predict(X_test_sample)
-                            # y_test = cnn_clf.predict(X_test1)
+                            # model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+                            # y_test = model.predict(X_test_sample)
+                            # loaded_model=tf.saved_model.load("my_model")
+                            # y_test=loaded_model.predict(X_test_sample)
                     
 
                             prediction = 'Not check-worthy' if y_test[0] <0.5 else 'Check-worthy'
@@ -469,6 +507,8 @@ def main():
                                 # else                          : st.write(y_test[0,0]*100)   
 
 
+
+                              
 
 
     # if choice == "CNN - Type1 (optimization)":
