@@ -15,10 +15,29 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import load_model
+# from tensorflow.keras.models import load_model
 
-
-
+@st.cache(persist = True)
+def load_data():
+    #Load the dataset
+    data = pd.read_csv('data.csv')
+    # rename the labels
+    data['check-worthy'] = data['check-worthy'].replace(['yes'],1)
+    data['check-worthy'] = data['check-worthy'].replace(['no'],0)
+    # delete unused column "claim"    
+    data = data.drop('claim', 1)
+    # remove hyberlinks
+    data['tweet'] = data['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
+    # remove the word <link>
+    data['tweet'] = data['tweet'].replace(to_replace=r'<link>',value='',regex=True)
+    # remove emogis
+    data['tweet'] = data['tweet'].apply(lambda x: re.split('[^\w\s#@/:%.,_-]', str(x))[0])
+    # more cleaning (remove usernames-hashtags)
+    data['tweet'] = data['tweet'].replace(to_replace=r'(@){1}.+?( ){1}',value='',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r'(#){1}.+?( ){1}',value='',regex=True)
+    # convert to lowercase
+    data['tweet'] = data['tweet'].str.lower() 
+    return data
 
 def create_model(num_filters, kernel_size, vocab_size, embedding_dim, maxlen):
     model = Sequential()
@@ -32,29 +51,6 @@ def create_model(num_filters, kernel_size, vocab_size, embedding_dim, maxlen):
                   metrics=['accuracy'])
     return model
 
-@st.cache(persist = True)
-def load_data():
-    #Load the dataset
-    data = pd.read_csv('data.csv')
-    # rename the labels
-    data['check-worthy'] = data['check-worthy'].replace(['yes'],1)
-    data['check-worthy'] = data['check-worthy'].replace(['no'],0)
-    # delete unused column "claim"    
-    data = data.drop('claim', 1)
-
-    # remove hyberlinks
-    data['tweet'] = data['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
-    # remove the word <link>
-    data['tweet'] = data['tweet'].replace(to_replace=r'<link>',value='',regex=True)
-    # remove emogis
-    data['tweet'] = data['tweet'].apply(lambda x: re.split('[^\w\s#@/:%.,_-]', str(x))[0])
-    # more cleaning (remove usernames-hashtags)
-    data['tweet'] = data['tweet'].replace(to_replace=r'(@){1}.+?( ){1}',value='',regex=True)
-    data['tweet'] = data['tweet'].replace(to_replace=r'(#){1}.+?( ){1}',value='',regex=True)
-    # convert to lowercase
-    data['tweet'] = data['tweet'].str.lower() 
-    return data
-
 def create_embedding_matrix(filepath, word_index, embedding_dim):
     vocab_size = len(word_index) + 1  # Adding again 1 because of reserved 0 index
     embedding_matrix = np.zeros((vocab_size, embedding_dim))
@@ -66,25 +62,24 @@ def create_embedding_matrix(filepath, word_index, embedding_dim):
                 idx = word_index[word] 
                 embedding_matrix[idx] = np.array(
                     vector, dtype=np.float32)[:embedding_dim]
-
     return embedding_matrix
 
-def load_data1():
-        #Load the dataset
-    data = pd.read_csv('data1.csv')
+# def load_data1():
+#         #Load the dataset
+#     data = pd.read_csv('data1.csv')
     
-    # remove hyberlinks
-    data['tweet'] = data['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
-    # remove the word <link>
-    data['tweet'] = data['tweet'].replace(to_replace=r'<link>',value='',regex=True)
-    # remove emogis
-    data['tweet'] = data['tweet'].apply(lambda x: re.split('[^\w\s#@/:%.,_-]', str(x))[0])
-    # more cleaning (remove usernames-hashtags)
-    data['tweet'] = data['tweet'].replace(to_replace=r'(@){1}.+?( ){1}',value='',regex=True)
-    data['tweet'] = data['tweet'].replace(to_replace=r'(#){1}.+?( ){1}',value='',regex=True)
-    # convert to lowercase
-    data['tweet'] = data['tweet'].str.lower() 
-    return data
+#     # remove hyberlinks
+#     data['tweet'] = data['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
+#     # remove the word <link>
+#     data['tweet'] = data['tweet'].replace(to_replace=r'<link>',value='',regex=True)
+#     # remove emogis
+#     data['tweet'] = data['tweet'].apply(lambda x: re.split('[^\w\s#@/:%.,_-]', str(x))[0])
+#     # more cleaning (remove usernames-hashtags)
+#     data['tweet'] = data['tweet'].replace(to_replace=r'(@){1}.+?( ){1}',value='',regex=True)
+#     data['tweet'] = data['tweet'].replace(to_replace=r'(#){1}.+?( ){1}',value='',regex=True)
+#     # convert to lowercase
+#     data['tweet'] = data['tweet'].str.lower() 
+#     return data
 
 @st.cache(persist = True)
 def split(df, test_size_value):
@@ -93,24 +88,20 @@ def split(df, test_size_value):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size_value, random_state = 0)
     return X_train, X_test, y_train, y_test
 
-
-
-
-
 def main():
 
-    st.title("Predicting Check Worthy Tweet")
-    st.markdown("This app is created to predict if a tweet is check worthy or not in the domain of Corona Virus")
+    st.title("Predicting Check-Worthy Tweet")
+    st.markdown("This app is created to predict if a tweet is check-worthy or not in the domain of Corona Virus")
     st.markdown("Please choose your classifier model first then classify your tweet!")
 
-    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings", "CNN - Type1"]
+    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings", "CNN"]
     choice = st.sidebar.selectbox("Choose Classifier",classifier)
    
     # df =load_data()
     df=load_data()
     # df = pd.concat([df, df1])
 
-    test_size_value = st.sidebar.radio("Test size: (Default is 30%)", (0.1, 0.2, 0.3), 2, key = 'test_size')
+    # test_size_value = st.sidebar.radio("Test size: (Default is 30%)", (0.1, 0.2, 0.3), 0, key = 'test_size')
     
     class_names = ['worthy', 'not worthy']
 
@@ -118,7 +109,7 @@ def main():
   
 
     if choice == "Logistic Regression":
-        X_train, X_test, y_train, y_test = split(df,test_size_value)
+        X_train, X_test, y_train, y_test = split(df,0.1)
         vectorizer = CountVectorizer()
         vectorizer.fit(X_train)
 
@@ -156,20 +147,19 @@ def main():
 
                         test_tweet_df = [test_tweet]
                         X_test_sample  = vectorizer.transform(test_tweet_df)
-                        y_test = lr_clf.predict(X_test_sample)              
+                        y_pred = lr_clf.predict(X_test_sample)              
 
-                        prediction = 'Not check-worthy' if y_test[0] == 0 else 'Check-worthy'
+                        prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
                         with col1:    
                             st.info("Prediction")
                             st.write(prediction)
                         with col2:
                             st.info("% Confidence")
-                            if prediction == 'Not check-worthy' : st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
-                            else                                : st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
-
-  
-
+                            if prediction == 'Not check-worthy' : 
+                                st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
+                            else : 
+                                st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
 
 
                            # @st.cache
@@ -186,7 +176,7 @@ def main():
 
 
     if choice == "Word Embeddings":
-        X_train, X_test, y_train, y_test = split(df,test_size_value)
+        X_train, X_test, y_train, y_test = split(df,0.1)
         tokenizer = Tokenizer(num_words=5000)
         tokenizer.fit_on_texts(X_train)
 
@@ -255,7 +245,7 @@ def main():
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
                         # sample_to_predict = np.array(X_test_sample)
 
-                        y_test = word_embeddings_clf.predict(X_test_sample)                 
+                        y_pred = word_embeddings_clf.predict(X_test_sample)                 
                         # y_test1 = seq_clf.predict(sample_to_predict)                 
 
                         # st.write(y_test)
@@ -264,14 +254,14 @@ def main():
                         # st.write(y_test[0]*100)
 
 
-                        prediction = 'Not check-worthy' if y_test[0]*100 < 50 else 'Check-worthy'
+                        prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
                         with col1:    
                             st.info("Prediction")
                             st.write(prediction)
                         with col2:
                             st.info("% Confidence")
-                            st.write("≈ {:.0f}".format(    (y_test[0]*100)[0]   ) )
+                            st.write("≈ {:.0f}".format(    (100-y_pred[0]*100)[0]   ) )
                             
                             # st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
                             # if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
@@ -279,7 +269,7 @@ def main():
 
 
     if choice == "Pretrained Word Embeddings":
-        X_train, X_test, y_train, y_test = split(df,test_size_value)
+        X_train, X_test, y_train, y_test = split(df,0.1)
         tokenizer = Tokenizer(num_words=5000)
         tokenizer.fit_on_texts(X_train)
 
@@ -350,17 +340,17 @@ def main():
                         X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
-                        y_test = pretrained_embeddings_clf.predict(X_test_sample)                 
+                        y_pred = pretrained_embeddings_clf.predict(X_test_sample)                 
                                   
 
-                        prediction = 'Not check-worthy' if y_test[0]*100 < 50 else 'Check-worthy'
+                        prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
                         with col1:    
                             st.info("Prediction")
                             st.write(prediction)
                         with col2:
                             st.info("% Confidence")
-                            st.write("≈ {:.0f}".format(    (y_test[0]*100)[0]   ) )
+                            st.write("≈ {:.0f}".format(    (100-y_pred[0]*100)[0]   ) )
                             # if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
                             # else                          : st.write((y_test[0]*100)[0])
                             
@@ -368,8 +358,8 @@ def main():
    
 
 
-    if choice == "CNN - Type1":
-            X_train, X_test, y_train, y_test = split(df,test_size_value)
+    if choice == "CNN":
+            X_train, X_test, y_train, y_test = split(df,0.1)
             # Tokenize and transform to integer index
             tokenizer = Tokenizer()
             tokenizer.fit_on_texts(X_train)
@@ -436,17 +426,17 @@ def main():
                             test_tweet_df = [test_tweet]
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            y_test = cnn_clf.predict(X_test_sample)
+                            y_pred = cnn_clf.predict(X_test_sample)
                     
 
-                            prediction = 'Not check-worthy' if y_test[0] <0.5 else 'Check-worthy'
+                            prediction = 'Not check-worthy' if y_pred[0] <0.5 else 'Check-worthy'
                             col1,col2 = st.columns([2,2])
                             with col1:    
                                 st.info("Prediction")
                                 st.write(prediction)
                             with col2:
                                 st.info("% Confidence")
-                                st.write("≈ {:.0f}".format(    (y_test[0]*100)[0]   ) )
+                                st.write("≈ {:.0f}".format(    (100-y_pred[0]*100)[0]   ) )
                                 # if prediction == 'not worthy' : st.write(y_test[0,0]*100)
                                 # else                          : st.write(y_test[0,0]*100)   
 
@@ -455,7 +445,7 @@ def main():
                               
 
 
-    # if choice == "CNN - Type1 (optimization)":
+    # if choice == "CNN - Hyperparameters optimization":
 
     #     param_grid = dict(num_filters=[32, 64, 128],
     #               kernel_size=[3, 5, 7],
@@ -470,7 +460,7 @@ def main():
     #     X = df['tweet']
     #     y = df['check-worthy']
     #     # Train-test split
-    #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size_value, random_state = 1000)
+    #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.1, random_state = 1000)
         
     #     # Tokenize words
     #     tokenizer = Tokenizer(num_words=5000)
