@@ -16,7 +16,6 @@ from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
-import os
 
 
 
@@ -95,12 +94,7 @@ def split(df, test_size_value):
     return X_train, X_test, y_train, y_test
 
 
-# @st.cache(allow_output_mutation=True)
-# def load_my_model():
-#     model = load_model("my_model.h5")
-#     # model._make_predict_function()
-#     # model.summary()  # included to make it visible when model is reloaded
-#     return model
+
 
 
 def main():
@@ -109,7 +103,7 @@ def main():
     st.markdown("This app is created to predict if a tweet is check worthy or not in the domain of Corona Virus")
     st.markdown("Please choose your classifier model first then classify your tweet!")
 
-    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings", "CNN - Type1", "CNN - Type1 (optimization)"]
+    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings", "CNN - Type1"]
     choice = st.sidebar.selectbox("Choose Classifier",classifier)
    
     # df =load_data()
@@ -132,28 +126,13 @@ def main():
         X_test  = vectorizer.transform(X_test)
 
         lr_clf = LogisticRegression()            
-        st.subheader("Classifier Metrics - Logistic Regression:")
+        # st.subheader("Classifier Metrics - Logistic Regression:")
         lr_clf.fit(X_train, y_train)
 
-        y_pred = lr_clf.predict(X_test)
-        st.write("Training Accuracy: {:.2f}".format(lr_clf.score(X_train, y_train)))
-        st.write("Testing Accuracy: {:.2f}".format(lr_clf.score(X_test, y_test)))
-        # st.write("Precision: {:.4f}".format(precision_score(y_test, y_pred, labels = class_names)))
-        # st.write("Recall: {:.4f}".format(recall_score(y_test, y_pred, labels = class_names)))
-
-        
-
-                                        # st.subheader("Confusion Matrix")
-                                        # plot_confusion_matrix(lr_clf, X_test, y_test, display_labels = class_names)
-                                        # st.pyplot()
-
-                                        # st.subheader("ROC Curve")
-                                        # plot_roc_curve(lr_clf, X_test, y_test)
-                                        # st.pyplot()
-
-                                        # st.subheader("Precision-Recall Curve")
-                                        # plot_precision_recall_curve(lr_clf, X_test, y_test)
-                                        # st.pyplot()
+        # y_pred = lr_clf.predict(X_test)
+        # st.write("Training Accuracy: {:.2f}".format(lr_clf.score(X_train, y_train)))
+        # st.write("Testing Accuracy: {:.2f}".format(lr_clf.score(X_test, y_test)))
+       
 
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
@@ -241,14 +220,13 @@ def main():
                     verbose=False,
                     validation_data=(X_test, y_test),
                     batch_size=10)
-        st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
-        y_pred = word_embeddings_clf.predict(X_test)
+        # st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
+        # y_pred = word_embeddings_clf.predict(X_test)
 
-        loss, accuracy = word_embeddings_clf.evaluate(X_train, y_train, verbose=False)
-        st.write("Training Accuracy: {:.2f}".format(accuracy))
-        loss, accuracy = word_embeddings_clf.evaluate(X_test, y_test, verbose=False)
-        st.write("Testing Accuracy:  {:.2f}".format(accuracy))
-        # st.write("Precision: {:.4f}".format(precision_score(y_test, y_pred, labels = class_names)))
+        # loss, accuracy = word_embeddings_clf.evaluate(X_train, y_train, verbose=False)
+        # st.write("Training Accuracy: {:.2f}".format(accuracy))
+        # loss, accuracy = word_embeddings_clf.evaluate(X_test, y_test, verbose=False)
+        # st.write("Testing Accuracy:  {:.2f}".format(accuracy))
 
 
         with st.form("my_form"):
@@ -339,13 +317,13 @@ def main():
                             batch_size=10)
         
         
-        st.subheader("Classifier Metrics - Sequential model with Pretrained Word Embeddings:")
-        y_pred = pretrained_embeddings_clf.predict(X_test)
+        # st.subheader("Classifier Metrics - Sequential model with Pretrained Word Embeddings:")
+        # y_pred = pretrained_embeddings_clf.predict(X_test)
 
-        loss, accuracy = pretrained_embeddings_clf.evaluate(X_train, y_train, verbose=False)
-        st.write("Training Accuracy: {:.2f}".format(accuracy))
-        loss, accuracy = pretrained_embeddings_clf.evaluate(X_test, y_test, verbose=False)
-        st.write("Testing Accuracy:  {:.2f}".format(accuracy))      
+        # loss, accuracy = pretrained_embeddings_clf.evaluate(X_train, y_train, verbose=False)
+        # st.write("Training Accuracy: {:.2f}".format(accuracy))
+        # loss, accuracy = pretrained_embeddings_clf.evaluate(X_test, y_test, verbose=False)
+        # st.write("Testing Accuracy:  {:.2f}".format(accuracy))      
 
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
@@ -373,13 +351,7 @@ def main():
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
                         y_test = pretrained_embeddings_clf.predict(X_test_sample)                 
-                        # y_test1 = seq_clf.predict(sample_to_predict)                 
-
-                        # st.write(y_test)
-                        # st.write(y_test1)
-
-                        # st.write(y_test[0]*100)
-
+                                  
 
                         prediction = 'Not check-worthy' if y_test[0]*100 < 50 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
@@ -415,45 +387,31 @@ def main():
 
             embedding_dim = 100
 
-            # cnn_clf = Sequential()
-            # cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
-            # cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
-            # cnn_clf.add(layers.GlobalMaxPooling1D())
-            # cnn_clf.add(layers.Dense(10, activation='relu'))
-            # cnn_clf.add(layers.Dense(1, activation='sigmoid'))
-            # cnn_clf.compile(optimizer='adam',
-            #             loss='binary_crossentropy',
-            #             metrics=['accuracy'])
-            # print(cnn_clf.summary())
+            cnn_clf = Sequential()
+            cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
+            cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
+            cnn_clf.add(layers.GlobalMaxPooling1D())
+            cnn_clf.add(layers.Dense(10, activation='relu'))
+            cnn_clf.add(layers.Dense(1, activation='sigmoid'))
+            cnn_clf.compile(optimizer='adam',
+                        loss='binary_crossentropy',
+                        metrics=['accuracy'])
+            print(cnn_clf.summary())
 
-            # # Fit model
-            # history = cnn_clf.fit(X_train, y_train,
-            #                     epochs=5,
-            #                     verbose=True,
-            #                     validation_data=(X_test, y_test),
-            #                     batch_size=10)
-
-            # # model_json = cnn_clf.to_json()
-            # # with open("model.json", "w") as json_file:
-            # #     json_file.write(model_json)
-            # # cnn_clf.save_weights("model.h5")
-
-            # cnn_clf.save("")
-            loaded_model = load_model("")
-            
-
-
+            # Fit model
+            history = cnn_clf.fit(X_train, y_train,
+                                epochs=5,
+                                verbose=True,
+                                validation_data=(X_test, y_test),
+                                batch_size=10)
             # st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
-        
             # y_pred = cnn_clf.predict(X_test)
-
-
             # loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
             # st.write("Training Accuracy: {:.2f}".format(accuracy))
             # loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
             # st.write("Testing Accuracy:  {:.2f}".format(accuracy))
-        
            
+
             with st.form("my_form"):
                 test_tweet = st.text_area("Enter Your Own Tweet:")        
                 submitted = st.form_submit_button("Classify")     
@@ -478,33 +436,8 @@ def main():
                             test_tweet_df = [test_tweet]
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            # model = load_model('model')
-
-                            # model = load_my_model()
-                            # model.make_predict_function()
-
-                            # cnn_clf.make_predict_function()
-
-                            # model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
-                            # y_test = model.predict(X_test_sample)
-                            # loaded_model=tf.saved_model.load("my_model")
-                            # y_test=loaded_model.predict(X_test_sample)
+                            y_test = cnn_clf.predict(X_test_sample)
                     
-                            # y_test = model.predict(X_test_sample)
-
-
-
-
-                            # Read and load the JSON file
-                            # json_file = open('model.json', 'r')
-                            # loaded_model_json = json_file.read()
-                            # json_file.close()
-
-                            # # Use Keras's built in model_from_json function to convert the JSON file to a model
-                            # loaded_model = model_from_json(loaded_model_json)
-
-                            # model = load_model()
-                            y_test = loaded_model.predict(X_test_sample)
 
                             prediction = 'Not check-worthy' if y_test[0] <0.5 else 'Check-worthy'
                             col1,col2 = st.columns([2,2])
