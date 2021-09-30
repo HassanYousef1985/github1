@@ -16,8 +16,9 @@ from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
+import os
 
-model = load_model('model')
+
 
 
 def create_model(num_filters, kernel_size, vocab_size, embedding_dim, maxlen):
@@ -432,12 +433,16 @@ def main():
             #                     validation_data=(X_test, y_test),
             #                     batch_size=10)
 
-            # model_json = cnn_clf.to_json()
-            # with open("model.json", "w") as json_file:
-            #     json_file.write(model_json)
-            # cnn_clf.save_weights("model.h5")
+            # # model_json = cnn_clf.to_json()
+            # # with open("model.json", "w") as json_file:
+            # #     json_file.write(model_json)
+            # # cnn_clf.save_weights("model.h5")
 
-            # cnn_clf.save('model')
+            # cnn_clf.save("")
+            loaded_model = load_model("")
+            
+
+
             # st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
         
             # y_pred = cnn_clf.predict(X_test)
@@ -485,7 +490,7 @@ def main():
                             # loaded_model=tf.saved_model.load("my_model")
                             # y_test=loaded_model.predict(X_test_sample)
                     
-                            y_test = model.predict(X_test_sample)
+                            # y_test = model.predict(X_test_sample)
 
 
 
@@ -499,7 +504,7 @@ def main():
                             # loaded_model = model_from_json(loaded_model_json)
 
                             # model = load_model()
-                            # y_test = loaded_model.predict(X_test_sample)
+                            y_test = loaded_model.predict(X_test_sample)
 
                             prediction = 'Not check-worthy' if y_test[0] <0.5 else 'Check-worthy'
                             col1,col2 = st.columns([2,2])
