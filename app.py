@@ -441,30 +441,30 @@ def main():
 
             embedding_dim = 100
 
-            cnn_clf = Sequential()
-            cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
-            cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
-            cnn_clf.add(layers.GlobalMaxPooling1D())
-            cnn_clf.add(layers.Dense(10, activation='relu'))
-            cnn_clf.add(layers.Dense(1, activation='sigmoid'))
-            cnn_clf.compile(optimizer='adam',
-                        loss='binary_crossentropy',
-                        metrics=['accuracy'])
-            print(cnn_clf.summary())
+            # cnn_clf = Sequential()
+            # cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
+            # cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
+            # cnn_clf.add(layers.GlobalMaxPooling1D())
+            # cnn_clf.add(layers.Dense(10, activation='relu'))
+            # cnn_clf.add(layers.Dense(1, activation='sigmoid'))
+            # cnn_clf.compile(optimizer='adam',
+            #             loss='binary_crossentropy',
+            #             metrics=['accuracy'])
+            # print(cnn_clf.summary())
 
-            # Fit model
-            history = cnn_clf.fit(X_train, y_train,
-                                epochs=5,
-                                verbose=True,
-                                validation_data=(X_test, y_test),
-                                batch_size=10)
-            st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
-            # y_pred = cnn_clf.predict(X_test)
-            loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
-            st.write("Training Accuracy: {:.2f}".format(accuracy))
-            loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
-            st.write("Testing Accuracy:  {:.2f}".format(accuracy))
-            cnn_clf.save('cnn.h5')
+            # # Fit model
+            # history = cnn_clf.fit(X_train, y_train,
+            #                     epochs=5,
+            #                     verbose=True,
+            #                     validation_data=(X_test, y_test),
+            #                     batch_size=10)
+            # st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
+            # # y_pred = cnn_clf.predict(X_test)
+            # loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
+            # st.write("Training Accuracy: {:.2f}".format(accuracy))
+            # loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
+            # st.write("Testing Accuracy:  {:.2f}".format(accuracy))
+            # cnn_clf.save('cnn.h5')
 
 
             with st.form("my_form"):
