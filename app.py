@@ -15,7 +15,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-# from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model
 
 @st.cache(persist = True)
 def load_data():
@@ -430,7 +430,8 @@ def main():
             # st.write("Training Accuracy: {:.2f}".format(accuracy))
             # loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
             # st.write("Testing Accuracy:  {:.2f}".format(accuracy))
-           
+            cnn_clf.save('my_model.h5')
+
 
             with st.form("my_form"):
                 test_tweet = st.text_area("Enter Your Own Tweet:")        
@@ -461,7 +462,8 @@ def main():
 
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            y_pred = cnn_clf.predict(X_test_sample)
+                            model_load = load_model('my_model.h5')
+                            y_pred = model_load.predict(X_test_sample)
                             # y_pred = cnn_clf.predict_classes(X_test_sample).flatten().tolist()
 
                             st.write(y_pred[0][0])
