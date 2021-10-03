@@ -441,23 +441,23 @@ def main():
 
             embedding_dim = 100
 
-            # cnn_clf = Sequential()
-            # cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
-            # cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
-            # cnn_clf.add(layers.GlobalMaxPooling1D())
-            # cnn_clf.add(layers.Dense(10, activation='relu'))
-            # cnn_clf.add(layers.Dense(1, activation='sigmoid'))
-            # cnn_clf.compile(optimizer='adam',
-            #             loss='binary_crossentropy',
-            #             metrics=['accuracy'])
-            # print(cnn_clf.summary())
+            cnn_clf = Sequential()
+            cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
+            cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
+            cnn_clf.add(layers.GlobalMaxPooling1D())
+            cnn_clf.add(layers.Dense(10, activation='relu'))
+            cnn_clf.add(layers.Dense(1, activation='sigmoid'))
+            cnn_clf.compile(optimizer='adam',
+                        loss='binary_crossentropy',
+                        metrics=['accuracy'])
+            print(cnn_clf.summary())
 
-            # # Fit model
-            # history = cnn_clf.fit(X_train, y_train,
-            #                     epochs=5,
-            #                     verbose=True,
-            #                     validation_data=(X_test, y_test),
-            #                     batch_size=10)
+            # Fit model
+            history = cnn_clf.fit(X_train, y_train,
+                                epochs=5,
+                                verbose=True,
+                                validation_data=(X_test, y_test),
+                                batch_size=10)
             # st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
             # # y_pred = cnn_clf.predict(X_test)
             # loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
@@ -533,8 +533,8 @@ def main():
 
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            model_load = load_model("")
-                            y_pred = model_load.predict(X_test_sample)
+                            # model_load = load_model("")
+                            y_pred = cnn_clf.predict(X_test_sample)
                             # y_pred = cnn_clf.predict_classes(X_test_sample).flatten().tolist()
 
                             # st.write(y_pred[0][0])
