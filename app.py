@@ -27,14 +27,43 @@ def load_data():
     # delete unused column "claim"    
     data = data.drop('claim', 1)
     # remove hyberlinks
-    data['tweet'] = data['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
+    # data['tweet'] = data['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
     # remove the word <link>
     data['tweet'] = data['tweet'].replace(to_replace=r'<link>',value='',regex=True)
     # remove emogis
-    data['tweet'] = data['tweet'].apply(lambda x: re.split('[^\w\s#@/:%.,_-]', str(x))[0])
-    # more cleaning (remove usernames-hashtags)
-    data['tweet'] = data['tweet'].replace(to_replace=r'(@){1}.+?( ){1}',value='',regex=True)
-    data['tweet'] = data['tweet'].replace(to_replace=r'(#){1}.+?( ){1}',value='',regex=True)
+    # data['tweet'] = data['tweet'].apply(lambda x: re.split('[^\w\s#@/:%.,_-]', str(x))[0])
+    data['tweet'] = data['tweet'].replace(to_replace=r'[^\w\s#@/:%.,_-]',value='',regex=True)
+    # # more cleaning (remove usernames-hashtags)
+    # data['tweet'] = data['tweet'].replace(to_replace=r'(@){1}.+?( ){1}',value='',regex=True)
+    # data['tweet'] = data['tweet'].replace(to_replace=r'(#){1}.+?( ){1}',value='',regex=True)
+    # more replacing 
+    data['tweet'] = data['tweet'].replace(to_replace=r'WH',value='world health organization',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r"shouldn't",value="should not",regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r'doesnt',value='does not',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r"don't",value="do not",regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r'dont',value='do not',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r'didnt',value='did not',regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r"didn't",value='did not',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r"isn't",value='is not',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r'isnt',value='is not',regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r"it's",value='it is',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r"couldn't",value='could not',regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r"aren't",value='are not',regex=True)                  
+    data['tweet'] = data['tweet'].replace(to_replace=r"won't",value='will not',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r"wont",value="will not",regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r"hasn't",value='has not',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r"wasn't",value="was not",regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r'thats',value='that is',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r'lets',value='let us',regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r"hes",value='he is',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r"theyre",value='they are',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r'whats',value='what is',regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r"can't",value='can not',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r"cant",value='can not',regex=True)  
+    data['tweet'] = data['tweet'].replace(to_replace=r"im ",value='i am',regex=True)                  
+
+    # remove punctaution
+    data['tweet'] = data['tweet'].str.replace('[^\w\s]','')
     # convert to lowercase
     data['tweet'] = data['tweet'].str.lower() 
     return data
@@ -145,8 +174,10 @@ def main():
                         # # convert to lowercase
                         test_tweet = test_tweet.lower() 
 
+                        # st.write(test_tweet)
                         test_tweet_df = [test_tweet]
                         X_test_sample  = vectorizer.transform(test_tweet_df)
+
                         y_pred = lr_clf.predict(X_test_sample)              
 
                         prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
@@ -177,7 +208,7 @@ def main():
 
     if choice == "Word Embeddings":
         X_train, X_test, y_train, y_test = split(df,0.1)
-        tokenizer = Tokenizer(num_words=5000)
+        tokenizer = Tokenizer(num_words=20000)
         tokenizer.fit_on_texts(X_train)
 
 
@@ -248,8 +279,7 @@ def main():
                         y_pred = word_embeddings_clf.predict(X_test_sample)                 
                         # y_test1 = seq_clf.predict(sample_to_predict)                 
 
-                        # st.write(y_test)
-                        # st.write(y_test1)
+                        st.write(y_pred)
 
                         # st.write(y_test[0]*100)
 
@@ -421,13 +451,20 @@ def main():
                             test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
                             # # convert to lowercase
                             test_tweet = test_tweet.lower() 
-
+                            # if type(test_tweet) == str:
+                            #     st.write("done")
 
                             test_tweet_df = [test_tweet]
+                            # st.write(type(test_tweet_df))
+                            # st.write(type( ['this is a sample text']))
+
+
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
                             y_pred = cnn_clf.predict(X_test_sample)
-                    
+                            # y_pred = cnn_clf.predict_classes(X_test_sample).flatten().tolist()
+
+                            st.write(y_pred[0][0])
 
                             prediction = 'Not check-worthy' if y_pred[0] <0.5 else 'Check-worthy'
                             col1,col2 = st.columns([2,2])
@@ -436,13 +473,24 @@ def main():
                                 st.write(prediction)
                             with col2:
                                 st.info("% Confidence")
-                                st.write("≈ {:.0f}".format(    (100-y_pred[0]*100)[0]   ) )
-                                # if prediction == 'not worthy' : st.write(y_test[0,0]*100)
-                                # else                          : st.write(y_test[0,0]*100)   
+                                # st.write('≈ {:.0f}'.format(y_pred[0][0]*2*100))
+                                # st.write( y_pred[0]*2*100)   
+                                if prediction == 'Not check-worthy' : st.write('≈ {:.0f}'.format(y_pred[0][0]*2*100))
+                                else                                : st.write('≈ {:.0f}'.format( (100 - (   y_pred[0][0]*100   )    )/2 )) 
 
+                               
+                                # st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
 
-
-                              
+                                # @st.cache
+                                # def __calculate_score(y_pred_class, y_pred_prob):
+                                # if y_pred_class == 0:
+                                #     MAX = 0.5
+                                #     scaled_percentage = (y_pred_prob * MAX) / 100
+                                #     return MAX - scaled_percentage
+                                # else:
+                                #     MAX = 1
+                                #     scaled_percentage = (y_pred_prob * MAX) / 100
+                                #     return scaled_percentage   
 
 
     # if choice == "CNN - Hyperparameters optimization":
@@ -722,7 +770,7 @@ def main():
 
    
     if st.sidebar.checkbox("Show Tweets Data-set", False):
-        st.subheader("Tweets Data-set")
+        st.subheader("Tweets Data-set:")
         # st.info("1 : Worthy    -----    0: Not Worthy")
 
 
@@ -730,7 +778,8 @@ def main():
         # st.dataframe(df.style.highlight_max(axis=0),width=3000, height=400)
         st.table(df.style.highlight_max(axis=0))  
 
-    
+    if st.sidebar.button("About Us!"):
+        st.sidebar.info("This App was done for a master's thesis at the university of Duisburg-Essen under the supervisement of Prof. Torsten Zesch and Dr. Ahmet Aker. The motivation of this thesis is detecting check-worthy tweets in the domain of corona virus. Hassan Yousef")
 
 
 
