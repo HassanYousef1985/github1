@@ -27,7 +27,13 @@ def load_data():
     # delete unused column "claim"    
     data = data.drop('claim', 1)
     # remove hyberlinks
+    data['tweet'] = data['tweet'].replace(to_replace=r'https:\/\/.*',value='',regex=True)
+    data['tweet'] = data['tweet'].replace(to_replace=r'\<a href',value='',regex=True)
+
+
     # data['tweet'] = data['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
+
+
     # remove the word <link>
     data['tweet'] = data['tweet'].replace(to_replace=r'<link>',value='',regex=True)
     # remove emogis
@@ -138,7 +144,7 @@ def main():
   
 
     if choice == "Logistic Regression":
-        X_train, X_test, y_train, y_test = split(df,0.1)
+        X_train, X_test, y_train, y_test = split(df,0.25)
         vectorizer = CountVectorizer()
         vectorizer.fit(X_train)
 
@@ -163,14 +169,42 @@ def main():
                     if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                     else:
                         # remove hyberlinks
-                        test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'https:\/\/.*', '', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'\<a href', '', test_tweet, flags=re.MULTILINE)    
                         # remove the word <link>
                         test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
                         # remove emogis
                         test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
                         # more cleaning (usernames-hashtags)
-                        test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                        # test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                        # test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+
+                        # more replacing 
+                        test_tweet = re.sub(r'WH','world health organization', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"shouldn't",'should not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'doesnt','does not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"don't",'do not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'dont','do not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'didnt','did not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"didn't",'did not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"isn't",'is not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'isnt','is not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"it's",'it is', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"couldn't",'could not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"aren't",'are not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"won't",'will not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'wont','will not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"hasn't",'has not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"wasn't",'was not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'thats','that is', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'lets','let us', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'hes','he is', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'theyre','they are', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'whats','what is', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r"can't",'can not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'cant','can not', test_tweet, flags=re.MULTILINE)
+                        test_tweet = re.sub(r'im ','i am', test_tweet, flags=re.MULTILINE)
+
                         # # convert to lowercase
                         test_tweet = test_tweet.lower() 
 
@@ -389,7 +423,7 @@ def main():
 
 
     if choice == "CNN":
-            X_train, X_test, y_train, y_test = split(df,0.1)
+            X_train, X_test, y_train, y_test = split(df,0.25)
             # Tokenize and transform to integer index
             tokenizer = Tokenizer()
             tokenizer.fit_on_texts(X_train)
@@ -424,13 +458,13 @@ def main():
                                 verbose=True,
                                 validation_data=(X_test, y_test),
                                 batch_size=10)
-            # st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
+            st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
             # y_pred = cnn_clf.predict(X_test)
-            # loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
-            # st.write("Training Accuracy: {:.2f}".format(accuracy))
-            # loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
-            # st.write("Testing Accuracy:  {:.2f}".format(accuracy))
-            cnn_clf.save('my_model.h5')
+            loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
+            st.write("Training Accuracy: {:.2f}".format(accuracy))
+            loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
+            st.write("Testing Accuracy:  {:.2f}".format(accuracy))
+            cnn_clf.save('cnn.h5')
 
 
             with st.form("my_form"):
@@ -443,17 +477,54 @@ def main():
                         else:
                             # remove hyberlinks
                             test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'\<a href', ' ', test_tweet, flags=re.MULTILINE)
+
                             # remove the word <link>
                             test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
                             # remove emogis
                             test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
                             # more cleaning (usernames-hashtags)
-                            test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                            # # convert to lowercase
+                            # test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                            # test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+                            
+                            # remove punctaution
+                            test_tweet = re.sub(r'[^\w\s]','', test_tweet, flags=re.MULTILINE)
+
+                            # more replacing 
+                            test_tweet = re.sub(r'WH','world health organization', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"shouldn't",'should not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'doesnt','does not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"don't",'do not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'dont','do not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'didnt','did not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"didn't",'did not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"isn't",'is not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'isnt','is not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"it's",'it is', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"couldn't",'could not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"aren't",'are not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"won't",'will not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'wont','will not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"hasn't",'has not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"wasn't",'was not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'thats','that is', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'lets','let us', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'hes','he is', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'theyre','they are', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'whats','what is', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r"can't",'can not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'cant','can not', test_tweet, flags=re.MULTILINE)
+                            test_tweet = re.sub(r'im ','i am', test_tweet, flags=re.MULTILINE)
+
+
+                            
+                            # convert to lowercase
                             test_tweet = test_tweet.lower() 
+
+                         
+
                             # if type(test_tweet) == str:
-                            #     st.write("done")
+                            # st.write(test_tweet)
 
                             test_tweet_df = [test_tweet]
                             # st.write(type(test_tweet_df))
@@ -462,11 +533,11 @@ def main():
 
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            model_load = load_model('my_model.h5')
+                            model_load = load_model('cnn.h5')
                             y_pred = model_load.predict(X_test_sample)
                             # y_pred = cnn_clf.predict_classes(X_test_sample).flatten().tolist()
 
-                            st.write(y_pred[0][0])
+                            # st.write(y_pred[0][0])
 
                             prediction = 'Not check-worthy' if y_pred[0] <0.5 else 'Check-worthy'
                             col1,col2 = st.columns([2,2])
