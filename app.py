@@ -533,7 +533,7 @@ def main():
 
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            model_load = load_model('cnn.h5')
+                            model_load = load_model("")
                             y_pred = model_load.predict(X_test_sample)
                             # y_pred = cnn_clf.predict_classes(X_test_sample).flatten().tolist()
 
