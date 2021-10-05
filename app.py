@@ -206,6 +206,8 @@ def main():
         # save the model to disk
         filename = 'lr_clf_model.sav'
         pickle.dump(lr_clf, open(filename, 'wb'))
+        # load the model from disk
+        loaded_model = pickle.load(open(filename, 'rb'))
         # y_pred = lr_clf.predict(X_test)
         st.write("Training Accuracy: {:.2f}".format(lr_clf.score(X_train, y_train)))
         st.write("Testing Accuracy: {:.2f}".format(lr_clf.score(X_test, y_test)))
@@ -221,9 +223,6 @@ def main():
                         # st.write(test_tweet)
                         test_tweet_df = [test_tweet]
                         X_test_sample  = vectorizer.transform(test_tweet_df)
-
-                        # load the model from disk
-                        loaded_model = pickle.load(open(filename, 'rb'))
 
                         y_pred = loaded_model.predict(X_test_sample)              
                         prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
