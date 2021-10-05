@@ -16,8 +16,6 @@ from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
-from word2vec_keras import Word2VecKeras
-from nltk.corpus import stopwords
 import pickle
 
 @st.cache(persist = True)
@@ -236,9 +234,9 @@ def main():
                         with col2:
                             st.info("% Confidence")
                             if prediction == 'Not check-worthy' : 
-                                st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
+                                st.write("≈ {:.0f}".format(loaded_model.predict_proba(X_test_sample)[0,0]*100))
                             else : 
-                                st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
+                                st.write("≈ {:.0f}".format(loaded_model.predict_proba(X_test_sample)[0,1]*100))  
                            # @st.cache
                                 # def __calculate_score(y_pred_class, y_pred_prob):
                                 # if y_pred_class == 0:
