@@ -16,6 +16,9 @@ from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
+from word2vec_keras import Word2VecKeras
+from nltk.corpus import stopwords
+import pickle
 
 @st.cache(persist = True)
 def load_data():
@@ -74,6 +77,57 @@ def load_data():
     data['tweet'] = data['tweet'].str.lower() 
     return data
 
+
+
+@st.cache(persist = True)
+def single_tweet_preprocess(test_tweet):
+    # remove hyberlinks
+    test_tweet = re.sub(r'https:\/\/.*', '', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'\<a href', '', test_tweet, flags=re.MULTILINE)    
+    # remove the word <link>
+    test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
+    # remove emogis
+    test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
+    # more cleaning (usernames-hashtags)
+    # test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+    # test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
+    # more replacing 
+    test_tweet = re.sub(r'WH','world health organization', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"shouldn't",'should not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'doesnt','does not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"don't",'do not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'dont','do not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'didnt','did not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"didn't",'did not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"isn't",'is not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'isnt','is not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"it's",'it is', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"couldn't",'could not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"aren't",'are not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"won't",'will not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'wont','will not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"hasn't",'has not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"wasn't",'was not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'thats','that is', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'lets','let us', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'hes','he is', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'theyre','they are', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'whats','what is', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r"can't",'can not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'cant','can not', test_tweet, flags=re.MULTILINE)
+    test_tweet = re.sub(r'im ','i am', test_tweet, flags=re.MULTILINE)
+    # remove punctaution
+    test_tweet =re.sub(r'[^\w\s]','', test_tweet, flags=re.MULTILINE)
+    # convert to lowercase
+    test_tweet = test_tweet.lower() 
+    return test_tweet
+
+
+
+
+
+
+
 def create_model(num_filters, kernel_size, vocab_size, embedding_dim, maxlen):
     model = Sequential()
     model.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
@@ -123,25 +177,22 @@ def split(df, test_size_value):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size_value, random_state = 0)
     return X_train, X_test, y_train, y_test
 
-def main():
 
+
+
+
+def main():
     st.title("Predicting Check-Worthy Tweet")
     st.markdown("This app is created to predict if a tweet is check-worthy or not in the domain of Corona Virus")
     st.markdown("Please choose your classifier model first then classify your tweet!")
-
     classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings", "CNN"]
     choice = st.sidebar.selectbox("Choose Classifier",classifier)
-   
     # df =load_data()
     df=load_data()
     # df = pd.concat([df, df1])
-
     # test_size_value = st.sidebar.radio("Test size: (Default is 30%)", (0.1, 0.2, 0.3), 0, key = 'test_size')
-    
     class_names = ['worthy', 'not worthy']
 
-
-  
 
     if choice == "Logistic Regression":
         X_train, X_test, y_train, y_test = split(df,0.25)
@@ -151,15 +202,15 @@ def main():
         X_train = vectorizer.transform(X_train)
         X_test  = vectorizer.transform(X_test)
 
-        lr_clf = LogisticRegression()            
+        # lr_clf = LogisticRegression()            
         # st.subheader("Classifier Metrics - Logistic Regression:")
-        lr_clf.fit(X_train, y_train)
-
-        # y_pred = lr_clf.predict(X_test)
+        # lr_clf.fit(X_train, y_train)
+        # # save the model to disk
+        # filename = 'lr_clf_model.sav'
+        # pickle.dump(lr_clf, open(filename, 'wb'))
+        # # y_pred = lr_clf.predict(X_test)
         # st.write("Training Accuracy: {:.2f}".format(lr_clf.score(X_train, y_train)))
         # st.write("Testing Accuracy: {:.2f}".format(lr_clf.score(X_test, y_test)))
-       
-
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
@@ -168,52 +219,15 @@ def main():
                 else:
                     if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                     else:
-                        # remove hyberlinks
-                        test_tweet = re.sub(r'https:\/\/.*', '', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'\<a href', '', test_tweet, flags=re.MULTILINE)    
-                        # remove the word <link>
-                        test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
-                        # remove emogis
-                        test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
-                        # more cleaning (usernames-hashtags)
-                        # test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                        # test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-
-                        # more replacing 
-                        test_tweet = re.sub(r'WH','world health organization', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"shouldn't",'should not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'doesnt','does not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"don't",'do not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'dont','do not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'didnt','did not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"didn't",'did not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"isn't",'is not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'isnt','is not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"it's",'it is', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"couldn't",'could not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"aren't",'are not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"won't",'will not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'wont','will not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"hasn't",'has not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"wasn't",'was not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'thats','that is', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'lets','let us', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'hes','he is', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'theyre','they are', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'whats','what is', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r"can't",'can not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'cant','can not', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'im ','i am', test_tweet, flags=re.MULTILINE)
-
-                        # # convert to lowercase
-                        test_tweet = test_tweet.lower() 
-
+                        test_tweet=single_tweet_preprocess(test_tweet)
                         # st.write(test_tweet)
                         test_tweet_df = [test_tweet]
                         X_test_sample  = vectorizer.transform(test_tweet_df)
 
-                        y_pred = lr_clf.predict(X_test_sample)              
+                        # load the model from disk
+                        loaded_model = pickle.load(open(lr_clf_model, 'rb'))
 
+                        y_pred = loaded_model.predict(X_test_sample)              
                         prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
                         with col1:    
@@ -225,8 +239,6 @@ def main():
                                 st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
                             else : 
                                 st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
-
-
                            # @st.cache
                                 # def __calculate_score(y_pred_class, y_pred_prob):
                                 # if y_pred_class == 0:
@@ -241,10 +253,9 @@ def main():
 
 
     if choice == "Word Embeddings":
-        X_train, X_test, y_train, y_test = split(df,0.1)
+        X_train, X_test, y_train, y_test = split(df,0.25)
         tokenizer = Tokenizer(num_words=20000)
         tokenizer.fit_on_texts(X_train)
-
 
         X_train = tokenizer.texts_to_sequences(X_train)
         X_test = tokenizer.texts_to_sequences(X_test)
@@ -418,6 +429,12 @@ def main():
                             # if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
                             # else                          : st.write((y_test[0]*100)[0])
                             
+
+
+
+
+
+   
 
    
 
