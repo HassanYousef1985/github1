@@ -200,15 +200,15 @@ def main():
         X_train = vectorizer.transform(X_train)
         X_test  = vectorizer.transform(X_test)
 
-        # lr_clf = LogisticRegression()            
-        # st.subheader("Classifier Metrics - Logistic Regression:")
-        # lr_clf.fit(X_train, y_train)
-        # # save the model to disk
-        # filename = 'lr_clf_model.sav'
-        # pickle.dump(lr_clf, open(filename, 'wb'))
-        # # y_pred = lr_clf.predict(X_test)
-        # st.write("Training Accuracy: {:.2f}".format(lr_clf.score(X_train, y_train)))
-        # st.write("Testing Accuracy: {:.2f}".format(lr_clf.score(X_test, y_test)))
+        lr_clf = LogisticRegression()            
+        st.subheader("Classifier Metrics - Logistic Regression:")
+        lr_clf.fit(X_train, y_train)
+        # save the model to disk
+        filename = 'lr_clf_model.sav'
+        pickle.dump(lr_clf, open(filename, 'wb'))
+        # y_pred = lr_clf.predict(X_test)
+        st.write("Training Accuracy: {:.2f}".format(lr_clf.score(X_train, y_train)))
+        st.write("Testing Accuracy: {:.2f}".format(lr_clf.score(X_test, y_test)))
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
