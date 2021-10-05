@@ -223,7 +223,7 @@ def main():
                         X_test_sample  = vectorizer.transform(test_tweet_df)
 
                         # load the model from disk
-                        loaded_model = pickle.load(open(lr_clf_model, 'rb'))
+                        loaded_model = pickle.load(open(filename, 'rb'))
 
                         y_pred = loaded_model.predict(X_test_sample)              
                         prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
