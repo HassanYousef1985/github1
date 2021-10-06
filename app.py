@@ -290,19 +290,20 @@ def main():
         #             validation_data=(X_test, y_test),
         #             batch_size=10)
         # word_embeddings_clf.save("word_embeddings_clf")
-        myzipfile2 = zipfile.ZipFile("word_embeddings_clf.ZIP")
+
+        myzipfile = zipfile.ZipFile("word_embeddings_clf.ZIP")
         with tempfile.TemporaryDirectory() as tmp_dir:
-            myzipfile2.extractall(tmp_dir)
-            root_folder = myzipfile2.namelist()[0] # e.g. "model.h5py"
+            myzipfile.extractall(tmp_dir)
+            root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
             model_dir = os.path.join(tmp_dir, root_folder)
             #st.info(f'trying to load model from tmp dir {model_dir}...')
-            we_model = load_model(model_dir)
+            model = load_model(model_dir)
 
         st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
         # y_pred = word_embeddings_clf.predict(X_test)
-        loss, accuracy = we_model.evaluate(X_train, y_train, verbose=False)
+        loss, accuracy = model.evaluate(X_train, y_train, verbose=False)
         st.write("Training Accuracy: {:.2f}".format(accuracy))
-        loss, accuracy = we_model.evaluate(X_test, y_test, verbose=False)
+        loss, accuracy = model.evaluate(X_test, y_test, verbose=False)
         st.write("Testing Accuracy:  {:.2f}".format(accuracy))
 
         with st.form("my_form"):
@@ -317,7 +318,7 @@ def main():
                         test_tweet_df = [test_tweet]
                         X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                        y_pred = we_model.predict(X_test_sample)                 
+                        y_pred = model.predict(X_test_sample)                 
 
                         prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
