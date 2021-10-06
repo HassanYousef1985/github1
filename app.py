@@ -15,8 +15,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import load_model
-import pickle
+from tensorflow.keras.models import load_model,save_model
 
 @st.cache(persist = True)
 def load_data():
@@ -122,6 +121,7 @@ def single_tweet_preprocess(test_tweet):
 
 
 
+loaded_model = tf.keras.models.load_model('pretrained_embeddings_clf')
 
 
 
@@ -203,11 +203,6 @@ def main():
         lr_clf = LogisticRegression()            
         st.subheader("Classifier Metrics - Logistic Regression:")
         lr_clf.fit(X_train, y_train)
-        # save the model to disk
-        filename = 'lr_clf_model.sav'
-        pickle.dump(lr_clf, open(filename, 'wb'))
-        # load the model from disk
-        loaded_model = pickle.load(open(filename, 'rb'))
         # y_pred = lr_clf.predict(X_test)
         st.write("Training Accuracy: {:.2f}".format(lr_clf.score(X_train, y_train)))
         st.write("Testing Accuracy: {:.2f}".format(lr_clf.score(X_test, y_test)))
@@ -224,7 +219,7 @@ def main():
                         test_tweet_df = [test_tweet]
                         X_test_sample  = vectorizer.transform(test_tweet_df)
 
-                        y_pred = loaded_model.predict(X_test_sample)              
+                        y_pred = lr_clf.predict(X_test_sample)              
                         prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
                         with col1:    
@@ -233,9 +228,9 @@ def main():
                         with col2:
                             st.info("% Confidence")
                             if prediction == 'Not check-worthy' : 
-                                st.write("≈ {:.0f}".format(loaded_model.predict_proba(X_test_sample)[0,0]*100))
+                                st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
                             else : 
-                                st.write("≈ {:.0f}".format(loaded_model.predict_proba(X_test_sample)[0,1]*100))  
+                                st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
                            # @st.cache
                                 # def __calculate_score(y_pred_class, y_pred_prob):
                                 # if y_pred_class == 0:
@@ -354,31 +349,32 @@ def main():
         X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
         X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
 
-        embedding_dim = 50
-        embedding_matrix = create_embedding_matrix(
-             'glove.6B.50d.txt',
-             tokenizer.word_index, embedding_dim)
+        # embedding_dim = 50
+        # embedding_matrix = create_embedding_matrix(
+        #      'glove.6B.50d.txt',
+        #      tokenizer.word_index, embedding_dim)
 
-        pretrained_embeddings_clf = Sequential()
-        pretrained_embeddings_clf.add(layers.Embedding(vocab_size, embedding_dim, 
-                           weights=[embedding_matrix], 
-                           input_length=maxlen, 
-                           trainable=True))
-        pretrained_embeddings_clf.add(layers.GlobalMaxPool1D())
-        pretrained_embeddings_clf.add(layers.Dense(10, activation='relu'))
-        pretrained_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
-        pretrained_embeddings_clf.compile(optimizer='adam',
-                    loss='binary_crossentropy',
-                    metrics=['accuracy'])
-        pretrained_embeddings_clf.summary()
+        # pretrained_embeddings_clf = Sequential()
+        # pretrained_embeddings_clf.add(layers.Embedding(vocab_size, embedding_dim, 
+        #                    weights=[embedding_matrix], 
+        #                    input_length=maxlen, 
+        #                    trainable=True))
+        # pretrained_embeddings_clf.add(layers.GlobalMaxPool1D())
+        # pretrained_embeddings_clf.add(layers.Dense(10, activation='relu'))
+        # pretrained_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
+        # pretrained_embeddings_clf.compile(optimizer='adam',
+        #             loss='binary_crossentropy',
+        #             metrics=['accuracy'])
+        # pretrained_embeddings_clf.summary()
 
-        history = pretrained_embeddings_clf.fit(X_train, y_train,
-                            epochs=10,
-                            verbose=False,
-                            validation_data=(X_test, y_test),
-                            batch_size=10)
+        # history = pretrained_embeddings_clf.fit(X_train, y_train,
+        #                     epochs=10,
+        #                     verbose=False,
+        #                     validation_data=(X_test, y_test),
+        #                     batch_size=10)
         
-        
+        # pretrained_embeddings_clf.save('pretrained_embeddings_clf')
+
         # st.subheader("Classifier Metrics - Sequential model with Pretrained Word Embeddings:")
         # y_pred = pretrained_embeddings_clf.predict(X_test)
 
@@ -465,6 +461,7 @@ def main():
                         loss='binary_crossentropy',
                         metrics=['accuracy'])
             print(cnn_clf.summary())
+            # cnn_clf.save('cnn_clf')
 
             # Fit model
             history = cnn_clf.fit(X_train, y_train,
