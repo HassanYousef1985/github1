@@ -181,6 +181,15 @@ def split(df, test_size_value):
 
 
 
+
+
+
+
+
+
+
+
+
 def main():
     st.title("Predicting Check-Worthy Tweet")
     st.markdown("This app is created to predict if a tweet is check-worthy or not in the domain of Corona Virus")
@@ -385,7 +394,6 @@ def main():
         # loss, accuracy = pretrained_embeddings_clf.evaluate(X_test, y_test, verbose=False)
         # st.write("Testing Accuracy:  {:.2f}".format(accuracy))      
 
-        stream = st.file_uploader('pretrained_embeddings_clf.ZIP', type='zip')
 
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
@@ -413,14 +421,13 @@ def main():
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
 
-                        if stream is not None:
-                            myzipfile = zipfile.ZipFile(stream)
-                            with tempfile.TemporaryDirectory() as tmp_dir:
-                                myzipfile.extractall(tmp_dir)
-                                root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
-                                model_dir = os.path.join(tmp_dir, root_folder)
-                                #st.info(f'trying to load model from tmp dir {model_dir}...')
-                                model = tf.keras.models.load_model(model_dir)
+                        myzipfile = zipfile.ZipFile("pretrained_embeddings_clf.ZIP")
+                        with tempfile.TemporaryDirectory() as tmp_dir:
+                            myzipfile.extractall(tmp_dir)
+                            root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
+                            model_dir = os.path.join(tmp_dir, root_folder)
+                            #st.info(f'trying to load model from tmp dir {model_dir}...')
+                            model = load_model(model_dir)
 
 
                         y_pred = model.predict(X_test_sample)                 
