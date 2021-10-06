@@ -408,7 +408,7 @@ def main():
                         X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
-                        y_pred = pretrained_embeddings_clf.predict(X_test_sample)                 
+                        y_pred = loaded_model.predict(X_test_sample)                 
                                   
 
                         prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
