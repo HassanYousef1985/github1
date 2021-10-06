@@ -409,13 +409,15 @@ def main():
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
 
-                        myzipfile = zipfile.ZipFile("pretrained_embeddings_clf", type='zip')
+                        # stream = st.file_uploader('TF.Keras model file (.h5py.zip)', type='zip')
+                        # if stream is not None:
+                        myzipfile = zipfile.ZipFile('pretrained_embeddings_clf', type='zip')
                         with tempfile.TemporaryDirectory() as tmp_dir:
                             myzipfile.extractall(tmp_dir)
                             root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
                             model_dir = os.path.join(tmp_dir, root_folder)
                             #st.info(f'trying to load model from tmp dir {model_dir}...')
-                            model = load_model(model_dir)
+                            model = tf.keras.models.load_model(model_dir)
 
 
                         y_pred = model.predict(X_test_sample)                 
