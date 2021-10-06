@@ -190,6 +190,7 @@ def split(df, test_size_value):
 
 
 
+
 def main():
     st.title("Predicting Check-Worthy Tweet")
     st.markdown("This app is created to predict if a tweet is check-worthy or not in the domain of Corona Virus")
@@ -202,6 +203,15 @@ def main():
     # test_size_value = st.sidebar.radio("Test size: (Default is 30%)", (0.1, 0.2, 0.3), 0, key = 'test_size')
     class_names = ['worthy', 'not worthy']
 
+
+
+    myzipfile2 = zipfile.ZipFile("word_embeddings_clf.ZIP")
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        myzipfile2.extractall(tmp_dir)
+        root_folder = myzipfile2.namelist()[0] # e.g. "model.h5py"
+        model_dir = os.path.join(tmp_dir, root_folder)
+        #st.info(f'trying to load model from tmp dir {model_dir}...')
+        we_model = load_model(model_dir)
 
     if choice == "Logistic Regression":
         X_train, X_test, y_train, y_test = split(df,0.25)
@@ -226,7 +236,6 @@ def main():
                     if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                     else:
                         test_tweet=single_tweet_preprocess(test_tweet)
-                        # st.write(test_tweet)
                         test_tweet_df = [test_tweet]
                         X_test_sample  = vectorizer.transform(test_tweet_df)
 
@@ -269,34 +278,30 @@ def main():
         X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
         X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
 
-        embedding_dim = 50
-
-        word_embeddings_clf = Sequential()
-        word_embeddings_clf.add(layers.Embedding(input_dim=vocab_size, 
-                                output_dim=embedding_dim, 
-                                input_length=maxlen))
-        word_embeddings_clf.add(layers.GlobalMaxPool1D())
-        # seq_clf.add(layers.Flatten())
-        word_embeddings_clf.add(layers.Dense(10, activation='relu'))
-        word_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
-        word_embeddings_clf.compile(optimizer='adam',
-                    loss='binary_crossentropy',
-                    metrics=['accuracy'])
-        # model.summary()
-
-        history = word_embeddings_clf.fit(X_train, y_train,
-                    epochs=10,
-                    verbose=False,
-                    validation_data=(X_test, y_test),
-                    batch_size=10)
-        # st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
+        # embedding_dim = 50
+        # word_embeddings_clf = Sequential()
+        # word_embeddings_clf.add(layers.Embedding(input_dim=vocab_size, 
+        #                         output_dim=embedding_dim, 
+        #                         input_length=maxlen))
+        # word_embeddings_clf.add(layers.GlobalMaxPool1D())
+        # # seq_clf.add(layers.Flatten())
+        # word_embeddings_clf.add(layers.Dense(10, activation='relu'))
+        # word_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
+        # word_embeddings_clf.compile(optimizer='adam',
+        #             loss='binary_crossentropy',
+        #             metrics=['accuracy'])
+        # word_embeddings_clf.fit(X_train, y_train,
+        #             epochs=10,
+        #             verbose=False,
+        #             validation_data=(X_test, y_test),
+        #             batch_size=10)
+        # word_embeddings_clf.save("word_embeddings_clf")
+        st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
         # y_pred = word_embeddings_clf.predict(X_test)
-
-        # loss, accuracy = word_embeddings_clf.evaluate(X_train, y_train, verbose=False)
-        # st.write("Training Accuracy: {:.2f}".format(accuracy))
-        # loss, accuracy = word_embeddings_clf.evaluate(X_test, y_test, verbose=False)
-        # st.write("Testing Accuracy:  {:.2f}".format(accuracy))
-
+        loss, accuracy = we_model.evaluate(X_train, y_train, verbose=False)
+        st.write("Training Accuracy: {:.2f}".format(accuracy))
+        loss, accuracy = we_model.evaluate(X_test, y_test, verbose=False)
+        st.write("Testing Accuracy:  {:.2f}".format(accuracy))
 
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
@@ -306,31 +311,11 @@ def main():
                 else:
                     if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                     else:
-                        # remove hyberlinks
-                        test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
-                        # remove the word <link>
-                        test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
-                        # remove emogis
-                        test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
-                        # more cleaning (usernames-hashtags)
-                        test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                        # # convert to lowercase
-                        test_tweet = test_tweet.lower() 
-
-
+                        test_tweet=single_tweet_preprocess(test_tweet)
                         test_tweet_df = [test_tweet]
                         X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                        # sample_to_predict = np.array(X_test_sample)
-
-                        y_pred = word_embeddings_clf.predict(X_test_sample)                 
-                        # y_test1 = seq_clf.predict(sample_to_predict)                 
-
-                        st.write(y_pred)
-
-                        # st.write(y_test[0]*100)
-
+                        y_pred = we_model.predict(X_test_sample)                 
 
                         prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
