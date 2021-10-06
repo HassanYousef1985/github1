@@ -289,7 +289,7 @@ def main():
                     verbose=False,
                     validation_data=(X_test, y_test),
                     batch_size=10)
-        # word_embeddings_clf.save("word_embeddings_clf")
+        word_embeddings_clf.save("word_embeddings_clf")
 
         # myzipfile = zipfile.ZipFile("word_embeddings_clf.ZIP")
         # with tempfile.TemporaryDirectory() as tmp_dir:
@@ -348,14 +348,6 @@ def main():
         X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
         X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
 
-        myzipfile = zipfile.ZipFile("pretrained_embeddings_clf.ZIP")   
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            myzipfile.extractall(tmp_dir)
-            root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
-            model_dir = os.path.join(tmp_dir, root_folder)
-            #st.info(f'trying to load model from tmp dir {model_dir}...')
-            model = load_model(model_dir)
-            
         # embedding_dim = 50
         # embedding_matrix = create_embedding_matrix(
         #      'glove.6B.50d.txt',
@@ -417,7 +409,13 @@ def main():
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
 
-                       
+                        myzipfile = zipfile.ZipFile("pretrained_embeddings_clf.ZIP")
+                        with tempfile.TemporaryDirectory() as tmp_dir:
+                            myzipfile.extractall(tmp_dir)
+                            root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
+                            model_dir = os.path.join(tmp_dir, root_folder)
+                            #st.info(f'trying to load model from tmp dir {model_dir}...')
+                            model = load_model(model_dir)
 
 
                         y_pred = model.predict(X_test_sample)                 
