@@ -409,7 +409,7 @@ def main():
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
 
-                        myzipfile = zipfile.ZipFile("pretrained_embeddings_clf.ZIP")
+                        myzipfile = zipfile.ZipFile("pretrained_embeddings_clf.zip")
                         with tempfile.TemporaryDirectory() as tmp_dir:
                             myzipfile.extractall(tmp_dir)
                             root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
