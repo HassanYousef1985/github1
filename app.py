@@ -289,7 +289,7 @@ def main():
                     verbose=False,
                     validation_data=(X_test, y_test),
                     batch_size=10)
-        word_embeddings_clf.save("word_embeddings_clf")
+        # word_embeddings_clf.save("word_embeddings_clf")
 
         # myzipfile = zipfile.ZipFile("word_embeddings_clf.ZIP")
         # with tempfile.TemporaryDirectory() as tmp_dir:
