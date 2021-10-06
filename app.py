@@ -294,7 +294,7 @@ def main():
         
         # stream = st.file_uploader('my_model.zip', type='zip')
         # if stream is not None:
-        myzipfile = zipfile.ZipFile('my_model.zip')
+        myzipfile = zipfile.ZipFile('my_model')
         with tempfile.TemporaryDirectory() as tmp_dir:
             myzipfile.extractall(tmp_dir)
             root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
