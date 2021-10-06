@@ -292,15 +292,17 @@ def main():
         # word_embeddings_clf.save('my_model.h5')
 
         
-        # stream = st.file_uploader('my_model.zip', type='zip')
-        # if stream is not None:
-        myzipfile = zipfile.ZipFile('my_model')
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            myzipfile.extractall(tmp_dir)
-            root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
-            model_dir = os.path.join(tmp_dir, root_folder)
-            #st.info(f'trying to load model from tmp dir {model_dir}...')
-            model = load_model(model_dir)
+        stream = st.file_uploader('TF.Keras model file (.h5py.zip)', type='zip')
+        if stream is not None:
+            myzipfile = zipfile.ZipFile(stream)
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                myzipfile.extractall(tmp_dir)
+                root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
+                model_dir = os.path.join(tmp_dir, root_folder)
+                #st.info(f'trying to load model from tmp dir {model_dir}...')
+                model = load_model(model_dir)
+
+           
 
         # st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
         # # y_pred = word_embeddings_clf.predict(X_test)
