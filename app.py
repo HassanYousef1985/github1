@@ -205,13 +205,7 @@ def main():
 
 
 
-    myzipfile2 = zipfile.ZipFile("word_embeddings_clf.ZIP")
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        myzipfile2.extractall(tmp_dir)
-        root_folder = myzipfile2.namelist()[0] # e.g. "model.h5py"
-        model_dir = os.path.join(tmp_dir, root_folder)
-        #st.info(f'trying to load model from tmp dir {model_dir}...')
-        we_model = load_model(model_dir)
+    
 
     if choice == "Logistic Regression":
         X_train, X_test, y_train, y_test = split(df,0.25)
@@ -296,6 +290,14 @@ def main():
         #             validation_data=(X_test, y_test),
         #             batch_size=10)
         # word_embeddings_clf.save("word_embeddings_clf")
+        myzipfile2 = zipfile.ZipFile("word_embeddings_clf.ZIP")
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            myzipfile2.extractall(tmp_dir)
+            root_folder = myzipfile2.namelist()[0] # e.g. "model.h5py"
+            model_dir = os.path.join(tmp_dir, root_folder)
+            #st.info(f'trying to load model from tmp dir {model_dir}...')
+            we_model = load_model(model_dir)
+
         st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
         # y_pred = word_embeddings_clf.predict(X_test)
         loss, accuracy = we_model.evaluate(X_train, y_train, verbose=False)
