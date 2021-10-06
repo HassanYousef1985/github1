@@ -16,7 +16,7 @@ from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model,save_model
-loaded_model = load_model('pretrained_embeddings_clf')
+loaded_model111 = load_model('pretrained_embeddings_clf')
 
 @st.cache(persist = True)
 def load_data():
@@ -408,7 +408,7 @@ def main():
                         X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
-                        y_pred = loaded_model.predict(X_test_sample)                 
+                        y_pred = loaded_model111.predict(X_test_sample)                 
                                   
 
                         prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
