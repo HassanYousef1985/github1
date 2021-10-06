@@ -16,7 +16,9 @@ from sklearn.metrics import confusion_matrix
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model,save_model
-loaded_model111 = load_model('pretrained_embeddings_clf')
+import zipfile
+import tempfile
+import os
 
 @st.cache(persist = True)
 def load_data():
@@ -383,6 +385,8 @@ def main():
         # loss, accuracy = pretrained_embeddings_clf.evaluate(X_test, y_test, verbose=False)
         # st.write("Testing Accuracy:  {:.2f}".format(accuracy))      
 
+        stream = st.file_uploader('pretrained_embeddings_clf.ZIP', type='zip')
+
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
@@ -408,7 +412,18 @@ def main():
                         X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
-                        y_pred = loaded_model111.predict(X_test_sample)                 
+
+                        if stream is not None:
+                            myzipfile = zipfile.ZipFile(stream)
+                            with tempfile.TemporaryDirectory() as tmp_dir:
+                                myzipfile.extractall(tmp_dir)
+                                root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
+                                model_dir = os.path.join(tmp_dir, root_folder)
+                                #st.info(f'trying to load model from tmp dir {model_dir}...')
+                                model = tf.keras.models.load_model(model_dir)
+
+
+                        y_pred = model.predict(X_test_sample)                 
                                   
 
                         prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
