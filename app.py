@@ -294,10 +294,6 @@ def main():
         
         word_embeddings_clf_model = load_model('word_embeddings_clf.h5')
 
-
-
-           
-
         st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
         # y_pred = word_embeddings_clf.predict(X_test)
         loss, accuracy = word_embeddings_clf_model.evaluate(X_train, y_train, verbose=False)
@@ -347,39 +343,40 @@ def main():
         X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
         X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
 
-        embedding_dim = 50
-        embedding_matrix = create_embedding_matrix(
-             'glove.6B.50d.txt',
-             tokenizer.word_index, embedding_dim)
+        # embedding_dim = 50
+        # embedding_matrix = create_embedding_matrix(
+        #      'glove.6B.50d.txt',
+        #      tokenizer.word_index, embedding_dim)
 
-        pretrained_embeddings_clf = Sequential()
-        pretrained_embeddings_clf.add(layers.Embedding(vocab_size, embedding_dim, 
-                           weights=[embedding_matrix], 
-                           input_length=maxlen, 
-                           trainable=True))
-        pretrained_embeddings_clf.add(layers.GlobalMaxPool1D())
-        pretrained_embeddings_clf.add(layers.Dense(10, activation='relu'))
-        pretrained_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
-        pretrained_embeddings_clf.compile(optimizer='adam',
-                    loss='binary_crossentropy',
-                    metrics=['accuracy'])
-        pretrained_embeddings_clf.summary()
+        # pretrained_embeddings_clf = Sequential()
+        # pretrained_embeddings_clf.add(layers.Embedding(vocab_size, embedding_dim, 
+        #                    weights=[embedding_matrix], 
+        #                    input_length=maxlen, 
+        #                    trainable=True))
+        # pretrained_embeddings_clf.add(layers.GlobalMaxPool1D())
+        # pretrained_embeddings_clf.add(layers.Dense(10, activation='relu'))
+        # pretrained_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
+        # pretrained_embeddings_clf.compile(optimizer='adam',
+        #             loss='binary_crossentropy',
+        #             metrics=['accuracy'])
+        # pretrained_embeddings_clf.summary()
 
-        history = pretrained_embeddings_clf.fit(X_train, y_train,
-                            epochs=10,
-                            verbose=False,
-                            validation_data=(X_test, y_test),
-                            batch_size=10)
+        # history = pretrained_embeddings_clf.fit(X_train, y_train,
+        #                     epochs=10,
+        #                     verbose=False,
+        #                     validation_data=(X_test, y_test),
+        #                     batch_size=10)
         
-        pretrained_embeddings_clf.save('pretrained_embeddings_clf')
+        # pretrained_embeddings_clf.save('pretrained_embeddings_clf.h5')
 
-        # st.subheader("Classifier Metrics - Sequential model with Pretrained Word Embeddings:")
-        # y_pred = pretrained_embeddings_clf.predict(X_test)
+        pretrained_embeddings_clf_model = load_model('pretrained_embeddings_clf.h5')
 
-        # loss, accuracy = pretrained_embeddings_clf.evaluate(X_train, y_train, verbose=False)
-        # st.write("Training Accuracy: {:.2f}".format(accuracy))
-        # loss, accuracy = pretrained_embeddings_clf.evaluate(X_test, y_test, verbose=False)
-        # st.write("Testing Accuracy:  {:.2f}".format(accuracy))      
+        st.subheader("Classifier Metrics - Sequential model with Pretrained Word Embeddings:")
+
+        loss, accuracy = pretrained_embeddings_clf_model.evaluate(X_train, y_train, verbose=False)
+        st.write("Training Accuracy: {:.2f}".format(accuracy))
+        loss, accuracy = pretrained_embeddings_clf_model.evaluate(X_test, y_test, verbose=False)
+        st.write("Testing Accuracy:  {:.2f}".format(accuracy))      
 
 
         with st.form("my_form"):
@@ -390,38 +387,12 @@ def main():
                 else:
                     if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                     else:
-                        # remove hyberlinks
-                        test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
-                        # remove the word <link>
-                        test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
-                        # remove emogis
-                        test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
-                        # more cleaning (usernames-hashtags)
-                        test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                        test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                        # # convert to lowercase
-                        test_tweet = test_tweet.lower() 
-
+                        test_tweet=single_tweet_preprocess(test_tweet)
 
                         test_tweet_df = [test_tweet]
                         X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-
-
-                        # stream = st.file_uploader('TF.Keras model file (.h5py.zip)', type='zip')
-                        # if stream is not None:
-                        # myzipfile = zipfile.ZipFile('pretrained_embeddings_clf', type='zip')
-                        # with tempfile.TemporaryDirectory() as tmp_dir:
-                        #     myzipfile.extractall(tmp_dir)
-                        #     root_folder = myzipfile.namelist()[0] # e.g. "model.h5py"
-                        #     model_dir = os.path.join(tmp_dir, root_folder)
-                        #     #st.info(f'trying to load model from tmp dir {model_dir}...')
-                        #     model = tf.keras.models.load_model(model_dir)
-
-
-
-
-                        y_pred = pretrained_embeddings_clf.predict(X_test_sample)                 
+                        y_pred = pretrained_embeddings_clf_model.predict(X_test_sample)                 
                                   
 
                         prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
