@@ -272,24 +272,24 @@ def main():
         X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
         X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
 
-        embedding_dim = 50
-        word_embeddings_clf = Sequential()
-        word_embeddings_clf.add(layers.Embedding(input_dim=vocab_size, 
-                                output_dim=embedding_dim, 
-                                input_length=maxlen))
-        word_embeddings_clf.add(layers.GlobalMaxPool1D())
-        # seq_clf.add(layers.Flatten())
-        word_embeddings_clf.add(layers.Dense(10, activation='relu'))
-        word_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
-        word_embeddings_clf.compile(optimizer='adam',
-                    loss='binary_crossentropy',
-                    metrics=['accuracy'])
-        word_embeddings_clf.fit(X_train, y_train,
-                    epochs=10,
-                    verbose=False,
-                    validation_data=(X_test, y_test),
-                    batch_size=10)
-        word_embeddings_clf.save('my_model.h5')
+        # embedding_dim = 50
+        # word_embeddings_clf = Sequential()
+        # word_embeddings_clf.add(layers.Embedding(input_dim=vocab_size, 
+        #                         output_dim=embedding_dim, 
+        #                         input_length=maxlen))
+        # word_embeddings_clf.add(layers.GlobalMaxPool1D())
+        # # seq_clf.add(layers.Flatten())
+        # word_embeddings_clf.add(layers.Dense(10, activation='relu'))
+        # word_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
+        # word_embeddings_clf.compile(optimizer='adam',
+        #             loss='binary_crossentropy',
+        #             metrics=['accuracy'])
+        # word_embeddings_clf.fit(X_train, y_train,
+        #             epochs=10,
+        #             verbose=False,
+        #             validation_data=(X_test, y_test),
+        #             batch_size=10)
+        # word_embeddings_clf.save('my_model.h5')
 
         
         model = load_model('my_model.h5')
