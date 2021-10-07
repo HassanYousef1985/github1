@@ -208,7 +208,7 @@ def main():
     
 
     if choice == "Logistic Regression":
-        X_train, X_test, y_train, y_test = split(df,0.25)
+        X_train, X_test, y_train, y_test = split(df,0.20)
         vectorizer = CountVectorizer()
         vectorizer.fit(X_train)
 
@@ -218,7 +218,8 @@ def main():
         lr_clf = LogisticRegression()            
         st.subheader("Classifier Metrics - Logistic Regression:")
         lr_clf.fit(X_train, y_train)
-        # y_pred = lr_clf.predict(X_test)
+        lr_clf.save('lr_clf.h5')
+
         st.write("Training Accuracy: {:.2f}".format(lr_clf.score(X_train, y_train)))
         st.write("Testing Accuracy: {:.2f}".format(lr_clf.score(X_test, y_test)))
         with st.form("my_form"):
