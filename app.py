@@ -194,7 +194,7 @@ def main():
     st.title("Predicting Check-Worthy Tweet")
     st.markdown("This app is created to predict if a tweet is check-worthy or not in the domain of Corona Virus")
     st.markdown("Please choose your classifier model first then classify your tweet!")
-    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings", "CNN"]
+    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings",  "Decision Tree", "CNN"]
     choice = st.sidebar.selectbox("Choose Classifier",classifier)
     # df =load_data()
     df=load_data()
@@ -372,6 +372,48 @@ def main():
                             st.write("≈ {:.0f}".format(    (100-y_pred[0]*100)[0]   ) )
     
 
+    if choice == "Decision Tree":
+            X_train, X_test, y_train, y_test = split(df,0.20)
+            vectorizer = CountVectorizer()
+            vectorizer.fit(X_train)
+
+            X_train = vectorizer.transform(X_train)
+            X_test  = vectorizer.transform(X_test)
+
+            # dt_clf = DecisionTreeClassifier()
+            # dt_clf.fit(X_train, y_train)
+            # dump(dt_clf, 'dt_clf.joblib') 
+
+            dt_clf_model = load('dt_clf.joblib')
+            st.subheader("Classifier Metrics - Decision Tree:")
+            st.write("Training Accuracy: {:.2f}".format(dt_clf_model.score(X_train, y_train)))
+            st.write("Testing Accuracy: {:.2f}".format(dt_clf_model.score(X_test, y_test)))
+
+            with st.form("my_form"):
+                        test_tweet = st.text_area("Enter Your Own Tweet:")        
+                        submitted = st.form_submit_button("Classify")     
+                        if submitted:
+                                        if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
+                                        else:
+                                            if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
+                                            else:                         
+                                                test_tweet=single_tweet_preprocess(test_tweet)
+                                                test_tweet_df = [test_tweet]
+                                                X_test_sample  = vectorizer.transform(test_tweet_df)
+                                                y_pred = dt_clf_model.predict(X_test_sample)                 
+                    
+                                                prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
+                                                col1,col2 = st.columns([2,2])
+                                                with col1:    
+                                                    st.info("Prediction")
+                                                    st.write(prediction)
+                                                with col2:
+                                                    st.info("% Confidence")
+                                                    if prediction == 'Not check-worthy' : 
+                                                        st.write("≈ {:.0f}".format(dt_clf_model.predict_proba(X_test_sample)[0,0]*100))
+                                                    else : 
+                                                        st.write("≈ {:.0f}".format(dt_clf_model.predict_proba(X_test_sample)[0,1]*100)) 
+
 
     if choice == "CNN":
             X_train, X_test, y_train, y_test = split(df,0.20)
@@ -442,52 +484,7 @@ def main():
     
 
 
-    if choice == "Decision Tree":
-            vectorizer = CountVectorizer()
-            vectorizer.fit(X_train)
-
-            X_train = vectorizer.transform(X_train)
-            X_test  = vectorizer.transform(X_test)
-
-            dt_clf = DecisionTreeClassifier()
-            dt_clf.fit(X_train, y_train)
-            
-            y_pred = dt_clf.predict(X_test)
-            st.write("Accuracy: {:.4f}".format(dt_clf.score(X_test, y_test)))
-            st.write("Precision: {:.4f}".format(precision_score(y_test, y_pred, labels = class_names)))
-
-            with st.form("my_form"):
-                        test_tweet = st.text_area("Enter Your Own Tweet:")        
-                        submitted = st.form_submit_button("Classify")     
-                        if submitted:
-                            # remove hyberlinks
-                            test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
-                            # remove the word <link>
-                            test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
-                            # remove emogis
-                            test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
-                            # more cleaning (usernames-hashtags)
-                            test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                            # # convert to lowercase
-                            test_tweet = test_tweet.lower() 
-
-
-                            test_tweet_df = [test_tweet]
-                            X_test_sample  = vectorizer.transform(test_tweet_df)
-                            y_test = dt_clf.predict(X_test_sample)                 
-
-                            prediction = 'not worthy' if y_test[0] == 0 else 'worthy'
-                            col1,col2 = st.columns([2,2])
-                            with col1:    
-                                st.info("Prediction")
-                                st.write(prediction)
-                            with col2:
-                                st.info("% Confidence")
-                                if prediction == 'not worthy' : st.write(dt_clf.predict_proba(X_test_sample)[0,0]*100)
-                                else                          : st.write(dt_clf.predict_proba(X_test_sample)[0,1]*100) 
-                                
-                              
+    
 
     # if choice == "CNN - Hyperparameters optimization":
 
@@ -703,7 +700,7 @@ def main():
 
                                 test_tweet_df = [test_tweet]
                                 X_test_sample  = vectorizer.transform(test_tweet_df)
-                                y_test = dt_clf.predict(X_test_sample)                 
+                                y_test = svm_clf.predict(X_test_sample)                 
 
                                 prediction = 'not worthy' if y_test[0] == 0 else 'worthy'
                                 col1,col2 = st.columns([2,2])
@@ -712,8 +709,8 @@ def main():
                                     st.write(prediction)
                                 with col2:
                                     st.info("% Confidence")
-                                    if prediction == 'not worthy' : st.write(dt_clf.predict_proba(X_test_sample)[0,0]*100)
-                                    else                          : st.write(dt_clf.predict_proba(X_test_sample)[0,1]*100)   
+                                    if prediction == 'not worthy' : st.write(svm_clf.predict_proba(X_test_sample)[0,0]*100)
+                                    else                          : st.write(svm_clf.predict_proba(X_test_sample)[0,1]*100)   
 
   
 
