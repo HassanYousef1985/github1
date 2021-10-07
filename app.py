@@ -847,7 +847,7 @@ def main():
         st.table(df.style.highlight_max(axis=0))  
 
     if st.sidebar.button("About Us!"):
-        st.sidebar.info("This App was done for a master's thesis at the university of Duisburg-Essen in Germany under the supervisement of Prof. Torsten Zesch and Dr. Ahmet Aker. The motivation of this thesis is detecting check-worthy tweets in the domain of corona virus. Hassan Yousef")
+        st.sidebar.info("This App was done for a master's thesis at the university of Duisburg-Essen under the supervisement of Prof. Torsten Zesch and Dr. Ahmet Aker. The motivation of this thesis is detecting check-worthy tweets in the domain of corona virus. Hassan Yousef")
 
 
 
