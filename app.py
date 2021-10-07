@@ -244,32 +244,19 @@ def main():
                             if prediction == 'Not check-worthy' : 
                                 st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
                             else : 
-                                st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
-                           # @st.cache
-                                # def __calculate_score(y_pred_class, y_pred_prob):
-                                # if y_pred_class == 0:
-                                #     MAX = 0.5
-                                #     scaled_percentage = (y_pred_prob * MAX) / 100
-                                #     return MAX - scaled_percentage
-                                # else:
-                                #     MAX = 1
-                                #     scaled_percentage = (y_pred_prob * MAX) / 100
-                                #     return scaled_percentage   
+                                st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100)) 
 
 
 
     if choice == "Word Embeddings":
-        X_train, X_test, y_train, y_test = split(df,0.25)
+        X_train, X_test, y_train, y_test = split(df,0.20)
         tokenizer = Tokenizer(num_words=20000)
         tokenizer.fit_on_texts(X_train)
-
         X_train = tokenizer.texts_to_sequences(X_train)
         X_test = tokenizer.texts_to_sequences(X_test)
-
         vocab_size = len(tokenizer.word_index) + 1  # Adding 1 because of reserved 0 index
         maxlen = 280
-
-        X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
+        X_train = pad_sequences(X_train, padding='post', maxlen=maxlen) 
         X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
 
         # embedding_dim = 50
@@ -291,11 +278,8 @@ def main():
         #             batch_size=10)
         # word_embeddings_clf.save('word_embeddings_clf.h5')
 
-        
         word_embeddings_clf_model = load_model('word_embeddings_clf.h5')
-
         st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
-        # y_pred = word_embeddings_clf.predict(X_test)
         loss, accuracy = word_embeddings_clf_model.evaluate(X_train, y_train, verbose=False)
         st.write("Training Accuracy: {:.2f}".format(accuracy))
         loss, accuracy = word_embeddings_clf_model.evaluate(X_test, y_test, verbose=False)
@@ -323,14 +307,10 @@ def main():
                         with col2:
                             st.info("% Confidence")
                             st.write("≈ {:.0f}".format(    (100-y_pred[0]*100)[0]   ) )
-                            
-                            # st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,0]*100))
-                            # if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
-                            # else                          : st.write((y_test[0]*100)[0])
 
 
     if choice == "Pretrained Word Embeddings":
-        X_train, X_test, y_train, y_test = split(df,0.1)
+        X_train, X_test, y_train, y_test = split(df,0.20)
         tokenizer = Tokenizer(num_words=5000)
         tokenizer.fit_on_texts(X_train)
 
@@ -359,25 +339,19 @@ def main():
         # pretrained_embeddings_clf.compile(optimizer='adam',
         #             loss='binary_crossentropy',
         #             metrics=['accuracy'])
-        # pretrained_embeddings_clf.summary()
-
-        # history = pretrained_embeddings_clf.fit(X_train, y_train,
+        # pretrained_embeddings_clf.fit(X_train, y_train,
         #                     epochs=10,
         #                     verbose=False,
         #                     validation_data=(X_test, y_test),
-        #                     batch_size=10)
-        
+        #                     batch_size=10)    
         # pretrained_embeddings_clf.save('pretrained_embeddings_clf.h5')
 
         pretrained_embeddings_clf_model = load_model('pretrained_embeddings_clf.h5')
-
         st.subheader("Classifier Metrics - Sequential model with Pretrained Word Embeddings:")
-
         loss, accuracy = pretrained_embeddings_clf_model.evaluate(X_train, y_train, verbose=False)
         st.write("Training Accuracy: {:.2f}".format(accuracy))
         loss, accuracy = pretrained_embeddings_clf_model.evaluate(X_test, y_test, verbose=False)
         st.write("Testing Accuracy:  {:.2f}".format(accuracy))      
-
 
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
@@ -388,13 +362,11 @@ def main():
                     if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                     else:
                         test_tweet=single_tweet_preprocess(test_tweet)
-
                         test_tweet_df = [test_tweet]
                         X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
                         y_pred = pretrained_embeddings_clf_model.predict(X_test_sample)                 
                                   
-
                         prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
                         with col1:    
@@ -403,21 +375,11 @@ def main():
                         with col2:
                             st.info("% Confidence")
                             st.write("≈ {:.0f}".format(    (100-y_pred[0]*100)[0]   ) )
-                            # if prediction == 'not worthy' : st.write((y_test[0]*100)[0])
-                            # else                          : st.write((y_test[0]*100)[0])
-                            
-
-
-
-
-
-   
-
-   
+    
 
 
     if choice == "CNN":
-            X_train, X_test, y_train, y_test = split(df,0.25)
+            X_train, X_test, y_train, y_test = split(df,0.20)
             # Tokenize and transform to integer index
             tokenizer = Tokenizer()
             tokenizer.fit_on_texts(X_train)
@@ -433,33 +395,30 @@ def main():
             X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
             # # Define CNN architecture
 
-            embedding_dim = 100
+            # embedding_dim = 100
+            # cnn_clf = Sequential()
+            # cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
+            # cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
+            # cnn_clf.add(layers.GlobalMaxPooling1D())
+            # cnn_clf.add(layers.Dense(10, activation='relu'))
+            # cnn_clf.add(layers.Dense(1, activation='sigmoid'))
+            # cnn_clf.compile(optimizer='adam',
+            #             loss='binary_crossentropy',
+            #             metrics=['accuracy'])
+            # cnn_clf.fit(X_train, y_train,
+            #                     epochs=5,
+            #                     verbose=True,
+            #                     validation_data=(X_test, y_test),
+            #                     batch_size=10)
+            # cnn_clf.save('cnn_clf.h5')
 
-            cnn_clf = Sequential()
-            cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
-            cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
-            cnn_clf.add(layers.GlobalMaxPooling1D())
-            cnn_clf.add(layers.Dense(10, activation='relu'))
-            cnn_clf.add(layers.Dense(1, activation='sigmoid'))
-            cnn_clf.compile(optimizer='adam',
-                        loss='binary_crossentropy',
-                        metrics=['accuracy'])
-            print(cnn_clf.summary())
-            # cnn_clf.save('cnn_clf')
-
-            # Fit model
-            history = cnn_clf.fit(X_train, y_train,
-                                epochs=5,
-                                verbose=True,
-                                validation_data=(X_test, y_test),
-                                batch_size=10)
-            # st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) (Type1):")
-            # # y_pred = cnn_clf.predict(X_test)
-            # loss, accuracy = cnn_clf.evaluate(X_train, y_train, verbose=True)
-            # st.write("Training Accuracy: {:.2f}".format(accuracy))
-            # loss, accuracy = cnn_clf.evaluate(X_test, y_test, verbose=False)
-            # st.write("Testing Accuracy:  {:.2f}".format(accuracy))
-            # cnn_clf.save('cnn.h5')
+            cnn_clf_model = load_model('cnn_clf.h5')
+        
+            st.subheader("Classifier Metrics - Convolutions Neural Network (CNN):")
+            loss, accuracy = cnn_clf_model.evaluate(X_train, y_train, verbose=True)
+            st.write("Training Accuracy: {:.2f}".format(accuracy))
+            loss, accuracy = cnn_clf_model.evaluate(X_test, y_test, verbose=False)
+            st.write("Testing Accuracy:  {:.2f}".format(accuracy))
 
 
             with st.form("my_form"):
@@ -470,69 +429,12 @@ def main():
                     else:
                         if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
                         else:
-                            # remove hyberlinks
-                            test_tweet = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'\<a href', ' ', test_tweet, flags=re.MULTILINE)
-
-                            # remove the word <link>
-                            test_tweet = re.sub(r'<link>', '', test_tweet, flags=re.MULTILINE)
-                            # remove emogis
-                            test_tweet = re.sub(r'[^\w\s#@/:%.,_-]', '', test_tweet, flags=re.MULTILINE)
-                            # more cleaning (usernames-hashtags)
-                            # test_tweet = re.sub(r'(@){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                            # test_tweet = re.sub(r'(#){1}.+?( ){1}', ' ', test_tweet, flags=re.MULTILINE)
-                            
-                            # remove punctaution
-                            test_tweet = re.sub(r'[^\w\s]','', test_tweet, flags=re.MULTILINE)
-
-                            # more replacing 
-                            test_tweet = re.sub(r'WH','world health organization', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"shouldn't",'should not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'doesnt','does not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"don't",'do not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'dont','do not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'didnt','did not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"didn't",'did not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"isn't",'is not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'isnt','is not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"it's",'it is', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"couldn't",'could not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"aren't",'are not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"won't",'will not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'wont','will not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"hasn't",'has not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"wasn't",'was not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'thats','that is', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'lets','let us', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'hes','he is', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'theyre','they are', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'whats','what is', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r"can't",'can not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'cant','can not', test_tweet, flags=re.MULTILINE)
-                            test_tweet = re.sub(r'im ','i am', test_tweet, flags=re.MULTILINE)
-
-
-                            
-                            # convert to lowercase
-                            test_tweet = test_tweet.lower() 
-
-                         
-
-                            # if type(test_tweet) == str:
-                            # st.write(test_tweet)
-
+                            test_tweet=single_tweet_preprocess(test_tweet)
                             test_tweet_df = [test_tweet]
-                            # st.write(type(test_tweet_df))
-                            # st.write(type( ['this is a sample text']))
-
 
                             X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                             X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                            # model_load = load_model("")
-                            y_pred = cnn_clf.predict(X_test_sample)
-                            # y_pred = cnn_clf.predict_classes(X_test_sample).flatten().tolist()
-
-                            # st.write(y_pred[0][0])
+                            y_pred = cnn_clf_model.predict(X_test_sample)
 
                             prediction = 'Not check-worthy' if y_pred[0] <0.5 else 'Check-worthy'
                             col1,col2 = st.columns([2,2])
@@ -541,25 +443,12 @@ def main():
                                 st.write(prediction)
                             with col2:
                                 st.info("% Confidence")
-                                # st.write('≈ {:.0f}'.format(y_pred[0][0]*2*100))
-                                # st.write( y_pred[0]*2*100)   
                                 if prediction == 'Not check-worthy' : st.write('≈ {:.0f}'.format(y_pred[0][0]*2*100))
                                 else                                : st.write('≈ {:.0f}'.format( (100 - (   y_pred[0][0]*100   )    )/2 )) 
 
                                
-                                # st.write("≈ {:.0f}".format(lr_clf.predict_proba(X_test_sample)[0,1]*100))  
 
-                                # @st.cache
-                                # def __calculate_score(y_pred_class, y_pred_prob):
-                                # if y_pred_class == 0:
-                                #     MAX = 0.5
-                                #     scaled_percentage = (y_pred_prob * MAX) / 100
-                                #     return MAX - scaled_percentage
-                                # else:
-                                #     MAX = 1
-                                #     scaled_percentage = (y_pred_prob * MAX) / 100
-                                #     return scaled_percentage   
-
+                              
 
     # if choice == "CNN - Hyperparameters optimization":
 
