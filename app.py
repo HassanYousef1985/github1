@@ -289,21 +289,21 @@ def main():
         #             verbose=False,
         #             validation_data=(X_test, y_test),
         #             batch_size=10)
-        # word_embeddings_clf.save('my_model.h5')
+        # word_embeddings_clf.save('word_embeddings_clf.h5')
 
         
-        model = load_model('my_model.h5')
+        word_embeddings_clf_model = load_model('word_embeddings_clf.h5')
 
 
 
            
 
-        # st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
-        # # y_pred = word_embeddings_clf.predict(X_test)
-        # loss, accuracy = word_embeddings_clf.evaluate(X_train, y_train, verbose=False)
-        # st.write("Training Accuracy: {:.2f}".format(accuracy))
-        # loss, accuracy = word_embeddings_clf.evaluate(X_test, y_test, verbose=False)
-        # st.write("Testing Accuracy:  {:.2f}".format(accuracy))
+        st.subheader("Classifier Metrics - Sequential Model with Word Embeddings:")
+        # y_pred = word_embeddings_clf.predict(X_test)
+        loss, accuracy = word_embeddings_clf_model.evaluate(X_train, y_train, verbose=False)
+        st.write("Training Accuracy: {:.2f}".format(accuracy))
+        loss, accuracy = word_embeddings_clf_model.evaluate(X_test, y_test, verbose=False)
+        st.write("Testing Accuracy:  {:.2f}".format(accuracy))
 
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
@@ -317,7 +317,7 @@ def main():
                         test_tweet_df = [test_tweet]
                         X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
                         X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
-                        y_pred = model.predict(X_test_sample)                 
+                        y_pred = word_embeddings_clf_model.predict(X_test_sample)                 
 
                         prediction = 'Not check-worthy' if y_pred[0]*100 < 50 else 'Check-worthy'
                         col1,col2 = st.columns([2,2])
