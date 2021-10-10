@@ -32,9 +32,7 @@ def load_data():
     data['tweet'] = data['tweet'].replace(to_replace=r'https:\/\/.*',value='',regex=True)
     data['tweet'] = data['tweet'].replace(to_replace=r'\<a href',value='',regex=True)
 
-
     # data['tweet'] = data['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
-
 
     # remove the word <link>
     data['tweet'] = data['tweet'].replace(to_replace=r'<link>',value='',regex=True)
@@ -678,20 +676,6 @@ def main():
         
        
 
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
    
@@ -705,7 +689,7 @@ def main():
         st.table(df.style.highlight_max(axis=0))  
 
     if st.sidebar.button("About Us!"):
-        st.sidebar.info("This App was done for a master's thesis at the university of Duisburg-Essen under the supervisement of Prof. Torsten Zesch and Dr. Ahmet Aker. The motivation of this thesis is detecting check-worthy tweets in the domain of corona virus. Hassan Yousef")
+        st.sidebar.info("This App is done for a master's thesis at the university of Duisburg-Essen under the supervisement of Prof. Torsten Zesch and Dr. Ahmet Aker. The motivation of this thesis is detecting check-worthy tweets in the domain of corona virus. Hassan Yousef")
 
 
 
