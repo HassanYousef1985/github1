@@ -188,7 +188,7 @@ def split(df, test_size_value):
 
 def main():
     st.title("Detecting check worthy Tweets")
-    st.markdown("This app is created to predict if a tweet is check-worthy or not in the domain of Corona Virus")
+    st.markdown("This app is created to detect if a tweet is check-worthy or not in the domain of Corona Virus")
     st.markdown("Please choose your classifier model first then classify your tweet!")
     classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings",  "Decision Tree", "SVC", "CNN - Type 1",  "CNN - Type 2"]
     choice = st.sidebar.selectbox("Choose Classifier",classifier)
