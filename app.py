@@ -190,7 +190,7 @@ def main():
     st.title("Detecting check worthy Tweets")
     st.markdown("This app is created to detect if a tweet is check-worthy or not in the domain of Corona Virus")
     st.markdown("Please choose your classifier model first then classify your tweet!")
-    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings",  "Decision Tree", "SVC", "CNN - Type 1",  "CNN - Type 2"]
+    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings", "CNN - Type 1",  "CNN - Type 2"]
     choice = st.sidebar.selectbox("Choose Classifier",classifier)
     # df =load_data()
     df=load_data()
@@ -368,89 +368,89 @@ def main():
                             st.write("≈ {:.0f}".format(    (100-y_pred[0]*100)[0]   ) )
     
 
-    if choice == "Decision Tree":
-            X_train, X_test, y_train, y_test = split(df,0.20)
-            vectorizer = CountVectorizer()
-            vectorizer.fit(X_train)
+    # if choice == "Decision Tree":
+    #         X_train, X_test, y_train, y_test = split(df,0.20)
+    #         vectorizer = CountVectorizer()
+    #         vectorizer.fit(X_train)
 
-            X_train = vectorizer.transform(X_train)
-            X_test  = vectorizer.transform(X_test)
+    #         X_train = vectorizer.transform(X_train)
+    #         X_test  = vectorizer.transform(X_test)
 
-            # dt_clf = DecisionTreeClassifier()
-            # dt_clf.fit(X_train, y_train)
-            # dump(dt_clf, 'dt_clf.joblib') 
+    #         # dt_clf = DecisionTreeClassifier()
+    #         # dt_clf.fit(X_train, y_train)
+    #         # dump(dt_clf, 'dt_clf.joblib') 
 
-            dt_clf_model = load('dt_clf.joblib')
-            st.subheader("Classifier Metrics - Decision Tree:")
-            st.write("Training Accuracy: {:.2f}".format(dt_clf_model.score(X_train, y_train)))
-            st.write("Testing Accuracy: {:.2f}".format(dt_clf_model.score(X_test, y_test)))
+    #         dt_clf_model = load('dt_clf.joblib')
+    #         st.subheader("Classifier Metrics - Decision Tree:")
+    #         st.write("Training Accuracy: {:.2f}".format(dt_clf_model.score(X_train, y_train)))
+    #         st.write("Testing Accuracy: {:.2f}".format(dt_clf_model.score(X_test, y_test)))
 
-            with st.form("my_form"):
-                test_tweet = st.text_area("Enter Your Own Tweet:")        
-                submitted = st.form_submit_button("Classify")     
-                if submitted:
-                    if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
-                    else:
-                        if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
-                        else:                         
-                            test_tweet=single_tweet_preprocess(test_tweet)
-                            test_tweet_df = [test_tweet]
-                            X_test_sample  = vectorizer.transform(test_tweet_df)
-                            y_pred = dt_clf_model.predict(X_test_sample)                 
-                            prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
-                            col1,col2 = st.columns([2,2])
-                            with col1:    
-                                st.info("Prediction")
-                                st.write(prediction)
-                            with col2:
-                                st.info("% Confidence")
-                                if prediction == 'Not check-worthy' : 
-                                    st.write("≈ {:.0f}".format(100))
-                                else : 
-                                    st.write("≈ {:.0f}".format(100)) 
+    #         with st.form("my_form"):
+    #             test_tweet = st.text_area("Enter Your Own Tweet:")        
+    #             submitted = st.form_submit_button("Classify")     
+    #             if submitted:
+    #                 if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
+    #                 else:
+    #                     if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
+    #                     else:                         
+    #                         test_tweet=single_tweet_preprocess(test_tweet)
+    #                         test_tweet_df = [test_tweet]
+    #                         X_test_sample  = vectorizer.transform(test_tweet_df)
+    #                         y_pred = dt_clf_model.predict(X_test_sample)                 
+    #                         prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
+    #                         col1,col2 = st.columns([2,2])
+    #                         with col1:    
+    #                             st.info("Prediction")
+    #                             st.write(prediction)
+    #                         with col2:
+    #                             st.info("% Confidence")
+    #                             if prediction == 'Not check-worthy' : 
+    #                                 st.write("≈ {:.0f}".format(100))
+    #                             else : 
+    #                                 st.write("≈ {:.0f}".format(100)) 
 
 
    
-    if choice == "SVC":
-        X_train, X_test, y_train, y_test = split(df,0.20)
-        vectorizer = CountVectorizer()
-        vectorizer.fit(X_train)
+    # if choice == "SVC":
+    #     X_train, X_test, y_train, y_test = split(df,0.20)
+    #     vectorizer = CountVectorizer()
+    #     vectorizer.fit(X_train)
 
-        X_train = vectorizer.transform(X_train)
-        X_test  = vectorizer.transform(X_test)
+    #     X_train = vectorizer.transform(X_train)
+    #     X_test  = vectorizer.transform(X_test)
 
-        # svc_clf=SVC()
-        # svc_clf.fit(X_train, y_train)
-        # dump(svc_clf, 'svc_clf.joblib') 
+    #     # svc_clf=SVC()
+    #     # svc_clf.fit(X_train, y_train)
+    #     # dump(svc_clf, 'svc_clf.joblib') 
 
-        svc_clf_model = load('svc_clf.joblib')
-        st.subheader("Classifier Metrics - Support Vector Classifier (SVC):")
-        st.write("Training Accuracy: {:.2f}".format(svc_clf_model.score(X_train, y_train)))
-        st.write("Testing Accuracy: {:.2f}".format(svc_clf_model.score(X_test, y_test)))
-        with st.form("my_form"):
-            test_tweet = st.text_area("Enter Your Own Tweet:")        
-            submitted = st.form_submit_button("Classify")     
-            if submitted:
-                if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
-                else:
-                    if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
-                    else:
-                        test_tweet=single_tweet_preprocess(test_tweet)
-                        test_tweet_df = [test_tweet]
-                        X_test_sample  = vectorizer.transform(test_tweet_df)
+    #     svc_clf_model = load('svc_clf.joblib')
+    #     st.subheader("Classifier Metrics - Support Vector Classifier (SVC):")
+    #     st.write("Training Accuracy: {:.2f}".format(svc_clf_model.score(X_train, y_train)))
+    #     st.write("Testing Accuracy: {:.2f}".format(svc_clf_model.score(X_test, y_test)))
+    #     with st.form("my_form"):
+    #         test_tweet = st.text_area("Enter Your Own Tweet:")        
+    #         submitted = st.form_submit_button("Classify")     
+    #         if submitted:
+    #             if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
+    #             else:
+    #                 if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
+    #                 else:
+    #                     test_tweet=single_tweet_preprocess(test_tweet)
+    #                     test_tweet_df = [test_tweet]
+    #                     X_test_sample  = vectorizer.transform(test_tweet_df)
 
-                        y_pred = svc_clf_model.predict(X_test_sample)      
-                        prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
-                        col1,col2 = st.columns([2,2])
-                        with col1:    
-                            st.info("Prediction")
-                            st.write(prediction)
-                        with col2:
-                            st.info("% Confidence")
-                            if prediction == 'Not check-worthy' : 
-                                st.write("≈ {:.0f}".format(100))
-                            else : 
-                                st.write("≈ {:.0f}".format(100)) 
+    #                     y_pred = svc_clf_model.predict(X_test_sample)      
+    #                     prediction = 'Not check-worthy' if y_pred[0] == 0 else 'Check-worthy'
+    #                     col1,col2 = st.columns([2,2])
+    #                     with col1:    
+    #                         st.info("Prediction")
+    #                         st.write(prediction)
+    #                     with col2:
+    #                         st.info("% Confidence")
+    #                         if prediction == 'Not check-worthy' : 
+    #                             st.write("≈ {:.0f}".format(100))
+    #                         else : 
+    #                             st.write("≈ {:.0f}".format(100)) 
 
 
     
