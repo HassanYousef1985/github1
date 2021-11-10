@@ -10,6 +10,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from tensorflow.keras import layers
+from tensorflow.keras.layers import Embedding, Conv1D, GlobalMaxPooling1D, Dense, Dropout
 import re                             
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
@@ -17,6 +18,8 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
 from joblib import dump, load
+from tensorflow.keras import regularizers
+from tensorflow.keras.regularizers import l2
 
 
 @st.cache(persist = True)
@@ -188,9 +191,9 @@ def split(df, test_size_value):
 
 def main():
     st.title("Detecting check worthy Tweets")
-    st.markdown("This app is created to detect if a tweet is check-worthy or not in the domain of Corona Virus")
-    st.markdown("Please choose your classifier model first then classify your tweet!")
-    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings", "CNN - Type 1",  "CNN - Type 2"]
+    st.markdown("This app was created to detect if a tweet is check worthy or not in the domain of Corona Virus")
+    st.markdown("Please choose your classifier model first, then classify your tweet!")
+    classifier = [ "Choose Classifier","Logistic Regression", "Word Embeddings", "Pretrained Word Embeddings", "CNN"]
     choice = st.sidebar.selectbox("Choose Classifier",classifier)
     # df =load_data()
     df=load_data()
@@ -206,7 +209,7 @@ def main():
         X_train = vectorizer.transform(X_train)
         X_test  = vectorizer.transform(X_test)
 
-        # lr_clf = LogisticRegression()            
+        # lr_clf = LogisticRegression(C=0.97, penalty='l1',solver='liblinear')          
         # lr_clf.fit(X_train, y_train)
         # dump(lr_clf, 'lr_clf.joblib') 
 
@@ -257,14 +260,15 @@ def main():
         #                         output_dim=embedding_dim, 
         #                         input_length=maxlen))
         # word_embeddings_clf.add(layers.GlobalMaxPool1D())
-        # # seq_clf.add(layers.Flatten())
-        # word_embeddings_clf.add(layers.Dense(10, activation='relu'))
-        # word_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
+        # word_embeddings_clf.add(layers.Flatten())
+        # # word_embeddings_clf.add(layers.Dense(10, activation='relu'))
+
+        # word_embeddings_clf.add(layers.Dense(1, activation='sigmoid',  bias_regularizer=l2(0.75), kernel_regularizer=l2(0.35)))
         # word_embeddings_clf.compile(optimizer='adam',
         #             loss='binary_crossentropy',
         #             metrics=['accuracy'])
         # word_embeddings_clf.fit(X_train, y_train,
-        #             epochs=10,
+        #             epochs=30,
         #             verbose=False,
         #             validation_data=(X_test, y_test),
         #             batch_size=10)
@@ -276,6 +280,7 @@ def main():
         st.write("Training Accuracy: {:.2f}".format(accuracy))
         loss, accuracy = word_embeddings_clf_model.evaluate(X_test, y_test, verbose=False)
         st.write("Testing Accuracy:  {:.2f}".format(accuracy))
+
         with st.form("my_form"):
             test_tweet = st.text_area("Enter Your Own Tweet:")        
             submitted = st.form_submit_button("Classify")     
@@ -302,7 +307,7 @@ def main():
 
     if choice == "Pretrained Word Embeddings":
         X_train, X_test, y_train, y_test = split(df,0.20)
-        tokenizer = Tokenizer(num_words=5000)
+        tokenizer = Tokenizer(num_words=20000)
         tokenizer.fit_on_texts(X_train)
 
         X_train = tokenizer.texts_to_sequences(X_train)
@@ -325,20 +330,20 @@ def main():
         #                    input_length=maxlen, 
         #                    trainable=True))
         # pretrained_embeddings_clf.add(layers.GlobalMaxPool1D())
-        # pretrained_embeddings_clf.add(layers.Dense(10, activation='relu'))
-        # pretrained_embeddings_clf.add(layers.Dense(1, activation='sigmoid'))
+        # pretrained_embeddings_clf.add(layers.Dense(32, kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01)))
+        # pretrained_embeddings_clf.add(layers.Dense(1, activation='sigmoid', kernel_regularizer=l2(0.7)))
         # pretrained_embeddings_clf.compile(optimizer='adam',
         #             loss='binary_crossentropy',
         #             metrics=['accuracy'])
         # pretrained_embeddings_clf.fit(X_train, y_train,
-        #                     epochs=10,
+        #                     epochs=30 ,
         #                     verbose=False,
         #                     validation_data=(X_test, y_test),
         #                     batch_size=10)    
         # pretrained_embeddings_clf.save('pretrained_embeddings_clf.h5')
 
         pretrained_embeddings_clf_model = load_model('pretrained_embeddings_clf.h5')
-        st.subheader("Classifier Metrics - Sequential model with Pretrained Word Embeddings:")
+        st.subheader("Classifier Metrics - Sequential Model with Pretrained Word Embeddings:")
         loss, accuracy = pretrained_embeddings_clf_model.evaluate(X_train, y_train, verbose=False)
         st.write("Training Accuracy: {:.2f}".format(accuracy))
         loss, accuracy = pretrained_embeddings_clf_model.evaluate(X_test, y_test, verbose=False)
@@ -456,7 +461,7 @@ def main():
     
 
 
-    if choice == "CNN - Type 1":
+    if choice == "CNN":
             X_train, X_test, y_train, y_test = split(df,0.20)
             # Tokenize and transform to integer index
             tokenizer = Tokenizer()
@@ -475,22 +480,10 @@ def main():
             # embedding_dim = 100
             # cnn_clf2 = Sequential()
             # cnn_clf2.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
-            # cnn_clf2.add( layers.Conv1D(filters=50,
-            #                             kernel_size=2,
-            #                             padding="valid",
-            #                             activation="relu"))
-            # cnn_clf2.add(layers.Conv1D(filters=50,
-            #                                 kernel_size=3,
-            #                                 padding="valid",
-            #                                 activation="relu"))
-            # cnn_clf2.add(layers.Conv1D(filters=50,
-            #                                 kernel_size=4,
-            #                                 padding="valid",
-            #                                 activation="relu"))
+            # cnn_clf2.add( layers.Conv1D(512, 3, activation='relu'))
             # cnn_clf2.add(layers.GlobalMaxPool1D())
-            # cnn_clf2.add(layers.Dense(units=512, activation="relu"))
-            # cnn_clf2.add(layers.Dropout(rate=0.1))
-            # cnn_clf2.add(layers.Dense(units=1,  activation="sigmoid"))
+           
+            # cnn_clf2.add(layers.Dense(units=1,  activation="sigmoid", kernel_regularizer=l2(0.1)))
             # cnn_clf2.compile(optimizer='adam',
             #             loss='binary_crossentropy',
             #             metrics=['accuracy'])
@@ -500,10 +493,14 @@ def main():
             #                     validation_data=(X_test, y_test),
             #                     batch_size=10)
                     
+
+
+            
+
             # cnn_clf2.save('cnn_clf2.h5')
 
             cnn_clf2_model = load_model('cnn_clf2.h5')
-            st.subheader("Classifier Metrics - Convolutions Neural Network (CNN) - Type 1:")
+            st.subheader("Classifier Metrics - Convolutions Neural Network (CNN):")
             loss, accuracy = cnn_clf2_model.evaluate(X_train, y_train, verbose=True)
             st.write("Training Accuracy: {:.2f}".format(accuracy))
             loss, accuracy = cnn_clf2_model.evaluate(X_test, y_test, verbose=False)
@@ -554,22 +551,22 @@ def main():
         X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
         # # Define CNN architecture
 
-        # embedding_dim = 100
-        # cnn_clf = Sequential()
-        # cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
-        # cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
-        # cnn_clf.add(layers.GlobalMaxPooling1D())
-        # cnn_clf.add(layers.Dense(10, activation='relu'))
-        # cnn_clf.add(layers.Dense(1, activation='sigmoid'))
-        # cnn_clf.compile(optimizer='adam',
-        #             loss='binary_crossentropy',
-        #             metrics=['accuracy'])
-        # cnn_clf.fit(X_train, y_train,
-        #                     epochs=5,
-        #                     verbose=True,
-        #                     validation_data=(X_test, y_test),
-        #                     batch_size=10)
-        # cnn_clf.save('cnn_clf.h5')
+        embedding_dim = 100
+        cnn_clf = Sequential()
+        cnn_clf.add(layers.Embedding(vocab_size, embedding_dim, input_length=maxlen))
+        cnn_clf.add(layers.Conv1D(128, 5, activation='relu'))
+        cnn_clf.add(layers.GlobalMaxPooling1D())
+        cnn_clf.add(layers.Dense(10, activation='relu'))
+        cnn_clf.add(layers.Dense(1, activation='sigmoid'))
+        cnn_clf.compile(optimizer='adam',
+                    loss='binary_crossentropy',
+                    metrics=['accuracy'])
+        cnn_clf.fit(X_train, y_train,
+                            epochs=5,
+                            verbose=True,
+                            validation_data=(X_test, y_test),
+                            batch_size=10)
+        cnn_clf.save('cnn_clf.h5')
 
         cnn_clf_model = load_model('cnn_clf.h5')
         st.subheader("Classifier Metrics - Convolutions Neural Network (CNN)- Type 2:")
@@ -578,29 +575,29 @@ def main():
         loss, accuracy = cnn_clf_model.evaluate(X_test, y_test, verbose=False)
         st.write("Testing Accuracy:  {:.2f}".format(accuracy))
 
-        with st.form("my_form"):
-            test_tweet = st.text_area("Enter Your Own Tweet:")        
-            submitted = st.form_submit_button("Classify")     
-            if submitted:
-                if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
-                else:
-                    if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
-                    else:
-                        test_tweet=single_tweet_preprocess(test_tweet)
-                        test_tweet_df = [test_tweet]
-                        X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
-                        X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
+        # with st.form("my_form"):
+        #     test_tweet = st.text_area("Enter Your Own Tweet:")        
+        #     submitted = st.form_submit_button("Classify")     
+        #     if submitted:
+        #         if test_tweet =="" : st.error("Tweet should not be empty or less than 5 words!")
+        #         else:
+        #             if len(test_tweet.split()) < 5 : st.error("Tweet should not be empty or less than 5 words!")
+        #             else:
+        #                 test_tweet=single_tweet_preprocess(test_tweet)
+        #                 test_tweet_df = [test_tweet]
+        #                 X_test_sample = tokenizer.texts_to_sequences(test_tweet_df)
+        #                 X_test_sample = pad_sequences(X_test_sample, padding='post', maxlen=maxlen)
 
-                        y_pred = cnn_clf_model.predict(X_test_sample)
-                        prediction = 'Not check-worthy' if y_pred[0] <0.5 else 'Check-worthy'
-                        col1,col2 = st.columns([2,2])
-                        with col1:    
-                            st.info("Prediction")
-                            st.write(prediction)
-                        with col2:
-                            st.info("% Confidence")
-                            if prediction == 'Not check-worthy' : st.write('≈ {:.0f}'.format(y_pred[0][0]*2*100))
-                            else                                : st.write('≈ {:.0f}'.format( (100 - (   y_pred[0][0]*100   )    )/2 )) 
+        #                 y_pred = cnn_clf_model.predict(X_test_sample)
+        #                 prediction = 'Not check-worthy' if y_pred[0] <0.5 else 'Check-worthy'
+        #                 col1,col2 = st.columns([2,2])
+        #                 with col1:    
+        #                     st.info("Prediction")
+        #                     st.write(prediction)
+        #                 with col2:
+        #                     st.info("% Confidence")
+        #                     if prediction == 'Not check-worthy' : st.write('≈ {:.0f}'.format(y_pred[0][0]*2*100))
+        #                     else                                : st.write('≈ {:.0f}'.format( (100 - (   y_pred[0][0]*100   )    )/2 )) 
 
                                
    
@@ -689,7 +686,7 @@ def main():
         st.table(df.style.highlight_max(axis=0))  
 
     if st.sidebar.button("About Us!"):
-        st.sidebar.info("This App is done for a master's thesis at the university of Duisburg-Essen under the supervisement of Prof. Torsten Zesch and Dr. Ahmet Aker. The motivation of this thesis is detecting check-worthy tweets in the domain of corona virus. Hassan Yousef")
+        st.sidebar.info("This app is done for a master's thesis at the university of Duisburg-Essen under the supervisement of Prof. Torsten Zesch and Dr. Ahmet Aker. The motivation of this thesis is detecting check worthy tweets in the domain of corona virus. Hassan Yousef")
 
 
 
