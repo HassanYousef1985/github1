@@ -190,6 +190,7 @@ def split(df, test_size_value):
 
 
 def main():
+    st.set_page_config(page_title='Detecting check worthy Tweets', layout = 'wide', initial_sidebar_state = 'auto')
     st.title("Detecting check worthy Tweets")
     st.markdown("This app was created to detect if a tweet is check worthy or not in the domain of Corona Virus")
     st.markdown("Please choose your classifier model first, then classify your tweet!")
